@@ -164,10 +164,12 @@ telugu-tokenizer-audit/
 │   │   └── cost_translation.py         # $-per-content, effective context window
 │   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── fertility_audit.py          # run_fertility_stage() — writes fertility_by_register.csv + script_fairness_gap.csv
+│   │   ├── fertility_audit.py          # run_fertility_stage() — writes fertility_by_register.csv + script_fairness_gap.csv + distribution CSVs
 │   │   ├── minimal_pair_audit.py       # run_minimal_pair_stage() — writes minimal_pair_fertility.csv
 │   │   ├── minimal_pair_stats.py       # summarize_minimal_pairs(), flag_high_variance_morph_types()
-│   │   └── fertility_accuracy_corr.py  # Pearson/Spearman vs. benchmark scores
+│   │   ├── script_gap_stats.py         # per_sentence_gap(), test_gap_significance() — requires matched corpus (§7.1 gate)
+│   │   ├── token_distribution.py       # distribution_summary(), tokens_per_word_buckets(), run_distribution_stage()
+│   │   └── fertility_accuracy_corr.py  # Pearson/Spearman + bootstrap CIs vs. benchmark scores
 │   └── reporting/
 │       ├── __init__.py
 │       ├── export.py                   # run_export_stage() — orchestrates tables, figures, and minimal_pair_summary.csv
@@ -205,11 +207,14 @@ telugu-tokenizer-audit/
 │   │       └── _processed/             # pre-built processed form of the FAKE_ files (avoids running script 01 in CI)
 │   ├── test_cost_translation.py
 │   ├── test_fertility.py
+│   ├── test_fertility_accuracy_corr.py
 │   ├── test_minimal_pair_stats.py
 │   ├── test_parity.py
 │   ├── test_pipeline_end_to_end.py
 │   ├── test_registry.py
-│   └── test_run_utils.py
+│   ├── test_run_utils.py
+│   ├── test_script_gap_stats.py
+│   └── test_token_distribution.py
 │
 ├── paper/
 │   ├── main.tex
@@ -365,6 +370,29 @@ Aggregated from `minimal_pair_fertility.csv` by `scripts/05` via
 `telugu_audit/analysis/minimal_pair_stats.py`. Present only when script 03
 has already run against the same experiment folder.
 
+### `experiments/<date>_<run_tag>/results/fertility_distribution.csv`
+Columns: `tokenizer, register, n_lines, mean, std, p25, p50, p75, p90, p99`
+Per-register fertility percentiles written by `run_distribution_stage()` as part
+of stage 2. Percentiles alongside the mean show whether high fertility is
+consistent across the corpus or driven by outliers — a key methodological check.
+
+### `experiments/<date>_<run_tag>/results/token_length_dist.csv`
+Columns: `tokenizer, register, tokens_per_word, n_words, pct_words`
+Distribution of token counts per word (buckets: 1 / 2 / 3 / 4 / 5+), also
+written by stage 2. The 5+ bucket is the low-resource signal: words that require
+five or more subword tokens are almost certainly outside the tokenizer's vocabulary.
+
+### `experiments/<date>_<run_tag>/results/script_gap_detail.csv`
+Columns: `sentence_idx, native_fertility, romanized_fertility, fertility_gap, fertility_ratio`
+Per-sentence gap for matched native/romanized pairs. **Requires matched corpus
+(§7.1 gate)** — generated manually via `script_gap_stats.per_sentence_gap()`,
+not by the automated pipeline.
+
+### `experiments/<date>_<run_tag>/results/script_gap_significance.json`
+Output of `script_gap_stats.test_gap_significance()`: Wilcoxon statistic, p-value,
+common-language effect size (`pct_pairs_native_costlier`), and bootstrap 95% CI
+on the median gap. Generated alongside `script_gap_detail.csv`.
+
 ### `experiments/<date>_<run_tag>/run_metadata.json`
 ```json
 {
@@ -485,14 +513,59 @@ diagnostic for the paper's "where does fragmentation happen" claim).
 
 ### 5.7 `telugu_audit/analysis/fertility_accuracy_corr.py`
 ```python
-def correlate_fertility_accuracy(fertility_by_model: dict[str, float],
-                                  accuracy_by_model: dict[str, float]) -> dict:
-    """Pearson + Spearman correlation, matching the Token Tax (AfriMMLU) method.
-    `accuracy_by_model` must come from either a cited published benchmark
-    result or a benchmark you actually ran -- never invented."""
+def correlate_fertility_accuracy(
+    fertility_by_model: dict[str, float],
+    accuracy_by_model: dict[str, float],
+    n_bootstrap: int = 2000,
+    seed: int = 42,
+) -> dict:
+    """Pearson + Spearman correlation with bootstrap 95% CIs.
+    With only 4-5 tokenizers, CIs matter more than p-values alone.
+    Emits a UserWarning and includes a 'warning' key in the result when n < 5.
+    `accuracy_by_model` must come from cited published benchmarks — never invented."""
 ```
 
-### 5.8 `telugu_audit/reporting/export.py` / `tables.py` / `plots.py`
+### 5.8 `telugu_audit/analysis/script_gap_stats.py`
+**Requires matched native/romanized corpus (§7.1 gate).** Not called by the
+automated pipeline — run manually once matched pairs are available.
+
+```python
+def per_sentence_gap(
+    native_lines: list[str],
+    romanized_lines: list[str],
+    count_fn,
+) -> pd.DataFrame:
+    """Per-sentence fertility and gap. Lines must be parallel (same content,
+    different script). Returns columns: sentence_idx, native_fertility,
+    romanized_fertility, fertility_gap, fertility_ratio."""
+
+def test_gap_significance(
+    gap_df: pd.DataFrame,
+    n_bootstrap: int = 2000,
+    seed: int = 42,
+) -> dict:
+    """Wilcoxon signed-rank test (one-sided, H1: native > romanized) plus
+    bootstrap 95% CI on the median gap and common-language effect size
+    (pct_pairs_native_costlier). Requires n ≥ 10 pairs."""
+```
+
+### 5.9 `telugu_audit/analysis/token_distribution.py`
+Called automatically by `run_fertility_stage()` — writes `fertility_distribution.csv`
+and `token_length_dist.csv` alongside the other stage-2 outputs.
+
+```python
+def distribution_summary(lines: list[str], count_fn) -> dict:
+    """Mean, std, p25/p50/p75/p90/p99 of per-line fertility."""
+
+def tokens_per_word_buckets(words: list[str], count_fn) -> pd.DataFrame:
+    """Fraction of words that tokenize to 1 / 2 / 3 / 4 / 5+ tokens.
+    The 5+ bucket is the primary low-resource signal."""
+
+def run_distribution_stage(experiment_dir, corpora, tokenizers) -> None:
+    """Writes fertility_distribution.csv and token_length_dist.csv."""
+```
+
+### 5.10 `telugu_audit/reporting/export.py` / `tables.py` / `plots.py`
 `export.py` is the stage-4 entry point called by `00_run_full_pipeline.py` and `scripts/05`:
 
 ```python
@@ -509,7 +582,7 @@ draft) and a LaTeX table. `plots.py` produces matplotlib PNG/SVG figures
 scatter). All outputs go into the calling experiment's own `tables/` and
 `figures/` subdirectories.
 
-### 5.9 `scripts/`
+### 5.11 `scripts/`
 Each script is a thin entry point: load a config, call into the
 `telugu_audit` package, write outputs to a new `experiments/<date>_<tag>/`
 folder via `run_utils.new_experiment_dir()`. If a script is doing anything
@@ -520,7 +593,7 @@ logic belongs in the package, not the script.
 python scripts/02_run_tokenizer_audit.py --config configs/default.yaml --run_tag native-vs-romanized-v1
 ```
 
-### 5.10 `tests/`
+### 5.12 `tests/`
 - Unit tests for `fertility.py`, `parity.py`, `registry.py` (registry test
   should mock/stub tokenizer adapters — don't require real API keys to pass).
 - One end-to-end test using `tests/fixtures/toy_corpus/` (tiny, clearly

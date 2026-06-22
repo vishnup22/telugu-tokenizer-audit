@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from telugu_audit.analysis.token_distribution import run_distribution_stage
 from telugu_audit.corpus.loaders import REGISTERS, load_all_registers
 from telugu_audit.metrics.fertility import compute_fertility
 from telugu_audit.run_utils import resolve_tokenizer_include
@@ -62,5 +63,7 @@ def run_fertility_stage(
         )
 
     pd.DataFrame(gap_rows).to_csv(results_dir / "script_fairness_gap.csv", index=False)
+
+    run_distribution_stage(experiment_dir, corpora, tokenizers)
 
     return {r: len(corpora[r]) for r in REGISTERS}

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-06-22T18:24:24.421405+00:00",
+  "config_used": "config_snapshot.yaml",
+  "tokenizer_versions": {
+    "stub-local": {
+      "library": "telugu_audit (built-in stub)",
+      "method": "len(text)//4"
+    },
+    "openai-gpt4o": {
+      "library": "tiktoken==0.13.0",
+      "encoding": "o200k_base"
+    },
+    "hf-gpt2": {
+      "library": "transformers==4.57.6",
+      "model": "gpt2"
+    }
+  },
+  "corpus_line_counts": {},
+  "git_commit": "unknown"
+}

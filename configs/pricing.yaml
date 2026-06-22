@@ -14,3 +14,9 @@ models:
   stub-local:
     price_per_1k_input_tokens: 0.0
     context_limit_tokens: 8192
+  sarvam-2b:
+    price_per_1k_input_tokens: 0.0   # open-source, run locally
+    context_limit_tokens: 4096        # TODO(human): verify from sarvam-1-v0.5 model card
+  sarvam-105b:
+    price_per_1k_input_tokens: 0.0   # open-source, run locally; Sarvam API pricing if used via API
+    context_limit_tokens: 32768       # TODO(human): verify from sarvam-105b model card

@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-06-22T18:44:40.214099+00:00",
+  "config_used": "config_snapshot.yaml",
+  "tokenizer_versions": {
+    "stub-local": {
+      "library": "telugu_audit (built-in stub)",
+      "method": "len(text)//4"
+    }
+  },
+  "corpus_line_counts": {
+    "native_formal": 3,
+    "native_informal": 3,
+    "romanized_informal": 3
+  },
+  "git_commit": "unknown"
+}

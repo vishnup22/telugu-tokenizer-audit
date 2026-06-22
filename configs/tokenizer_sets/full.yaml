@@ -2,6 +2,8 @@ include:
   - openai-gpt4o
   - claude
   - hf-gpt2
+  - sarvam-2b
+  - sarvam-105b
   # - llama-3
   # - mistral
   # - gemma-2

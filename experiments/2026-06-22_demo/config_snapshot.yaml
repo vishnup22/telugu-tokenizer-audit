@@ -1,0 +1,5 @@
+corpus_dir: tests/fixtures/toy_corpus/_processed
+minimal_pairs_path: tests/fixtures/toy_corpus/FAKE_minimal_pairs.tsv
+tokenizer_set: quick_test
+pricing_path: configs/pricing.yaml
+run_tag: dev
