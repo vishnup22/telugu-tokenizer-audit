@@ -1,0 +1,16 @@
+# Prices checked: placeholder — TODO(human): refresh before reporting cost numbers
+checked_date: "2026-01-01"
+currency: USD
+models:
+  openai-gpt4o:
+    price_per_1k_input_tokens: 0.0025
+    context_limit_tokens: 128000
+  claude:
+    price_per_1k_input_tokens: 0.003
+    context_limit_tokens: 200000
+  hf-gpt2:
+    price_per_1k_input_tokens: 0.0
+    context_limit_tokens: 1024
+  stub-local:
+    price_per_1k_input_tokens: 0.0
+    context_limit_tokens: 8192

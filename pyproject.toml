@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "telugu_audit"
+version = "0.1.0"
+description = "Telugu tokenizer fertility and fairness audit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "tiktoken",
+    "anthropic",
+    "transformers",
+    "sentencepiece",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "pyyaml",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = ["black", "ruff", "isort", "pre-commit", "pytest"]
+
+[tool.setuptools.packages.find]
+include = ["telugu_audit*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

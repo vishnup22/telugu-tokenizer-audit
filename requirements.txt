@@ -1,0 +1,10 @@
+tiktoken
+anthropic
+transformers
+sentencepiece
+pandas
+scipy
+matplotlib
+pyyaml
+pytest
+python-dotenv

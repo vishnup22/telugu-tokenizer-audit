@@ -1,0 +1,10 @@
+word	gloss	morph_type
+FAKEWORD001	FAKE base noun gloss	base_noun
+FAKEWORD002	FAKE case suffix gloss	case_suffix
+FAKEWORD003	FAKE sandhi case gloss	case_suffix_with_sandhi
+FAKEWORD004	FAKE plural gloss	plural_suffix
+FAKEWORD005	FAKE honorific gloss	honorific_suffix
+FAKEWORD006	FAKE compound sandhi gloss	compound_with_sandhi
+FAKEWORD007	FAKE borrowed base gloss	borrowed_base
+FAKEWORD008	FAKE borrowed case gloss	borrowed_plus_case_suffix
+FAKEWORD009	FAKE verb chain gloss	verb_agglutination_chain

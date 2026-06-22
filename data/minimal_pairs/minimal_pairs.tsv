@@ -1,0 +1,7 @@
+# TODO(human): replace all FAKEWORD rows with real, native-speaker-validated Telugu
+# minimal pairs before running the production pipeline (see PLAN.md §7.2).
+# Target: 200-300 rows covering all morph_type categories.
+word	gloss	morph_type
+FAKEWORD001	FAKE base noun gloss	base_noun
+FAKEWORD002	FAKE case suffix gloss	case_suffix
+FAKEWORD003	FAKE sandhi case gloss	case_suffix_with_sandhi

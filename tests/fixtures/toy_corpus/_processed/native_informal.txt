@@ -1,0 +1,3 @@
+FAKE informal native script line alpha
+FAKE informal native script line beta
+Duplicate FAKE informal native script line alpha

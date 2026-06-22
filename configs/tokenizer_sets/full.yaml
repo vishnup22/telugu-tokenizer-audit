@@ -1,0 +1,7 @@
+include:
+  - openai-gpt4o
+  - claude
+  - hf-gpt2
+  # - llama-3
+  # - mistral
+  # - gemma-2

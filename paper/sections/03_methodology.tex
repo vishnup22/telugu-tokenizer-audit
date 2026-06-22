@@ -1,0 +1,25 @@
+\section{Methodology}
+
+\subsection{Corpus}
+
+We use three registers: native formal, native informal, and romanized informal
+(matched pairs required for script comparison). Lines are one sentence or post
+each, UTF-8 encoded, with PII stripped.
+
+\subsection{Tokenizers}
+
+We evaluate commercial and open tokenizers via a unified adapter interface,
+logging library versions and model revisions in \texttt{run\_metadata.json}.
+
+\subsection{Metrics}
+
+\textbf{Fertility} is tokens per whitespace-delimited word (a known
+approximation for agglutinative morphology). \textbf{Compression} is bytes
+per token. \textbf{Script fairness gap} is the ratio of native-script to
+romanized fertility on matched informal content. Minimal pairs isolate
+fragmentation by \texttt{morph\_type}.
+
+\subsection{Cost and context}
+
+Given dated API pricing, we translate token counts to dollars and map fixed
+token budgets to effective word capacity using measured fertility.
