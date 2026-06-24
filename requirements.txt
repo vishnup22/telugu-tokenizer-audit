@@ -1,3 +1,4 @@
+# Python 3.10+
 tiktoken
 anthropic
 transformers
@@ -8,5 +9,5 @@ pandas
 scipy
 matplotlib
 pyyaml
-pytest
 python-dotenv
+pytest

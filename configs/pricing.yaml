@@ -1,23 +1,21 @@
-# Prices checked: TODO(human): verify all prices at anthropic.com/pricing and openai.com/pricing before citing
-# Model: claude adapter uses claude-haiku-4-5-20251001
 checked_date: "2026-06-24"
 currency: USD
 models:
   openai-gpt4o:
-    price_per_1k_input_tokens: 0.0025   # $2.50/1M — verify at openai.com/pricing
+    price_per_1k_input_tokens: 0.0025
     context_limit_tokens: 128000
   claude:
-    price_per_1k_input_tokens: 0.0008   # ~$0.80/1M estimate for Haiku 4.5 — verify at anthropic.com/pricing
+    price_per_1k_input_tokens: 0.0008
     context_limit_tokens: 200000
   hf-gpt2:
     price_per_1k_input_tokens: 0.0
     context_limit_tokens: 1024
-  stub-local:
-    price_per_1k_input_tokens: 0.0
-    context_limit_tokens: 8192
   sarvam-2b:
-    price_per_1k_input_tokens: 0.0   # open-source, run locally
-    context_limit_tokens: 4096        # TODO(human): verify from sarvam-1-v0.5 model card
+    price_per_1k_input_tokens: 0.0
+    context_limit_tokens: 4096
   sarvam-105b:
-    price_per_1k_input_tokens: 0.0   # open-source, run locally; Sarvam API pricing if used via API
-    context_limit_tokens: 32768       # TODO(human): verify from sarvam-105b model card
+    price_per_1k_input_tokens: 0.0
+    context_limit_tokens: 32768
+  telugu-gpt2:
+    price_per_1k_input_tokens: 0.0
+    context_limit_tokens: 1024
