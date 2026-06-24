@@ -22,3 +22,13 @@ experiments/*/tables/
 .claude_token_cache.json
 data/raw/
 data/processed/
+
+# Reference PDFs — large binaries, not needed in repo
+*.pdf
+
+# Large model checkpoint files
+*.pt
+*.pth
+*.pkl
+*.bin
+*.safetensors

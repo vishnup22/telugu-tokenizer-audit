@@ -9,7 +9,7 @@ Script gap = fertility(native) / fertility(romanized); values below 1.0 indicate
 
 | Tokenizer | Fertility | Script gap |
 |---|:---:|:---:|
-| dravidian-gpt2-telugu (32k BPE, Telugu) | **1.60** | **0.29** |
+| dravidian-gpt2-telugu¹ (32k BPE, Telugu) | **1.60** | **0.29** |
 | Sarvam-105B | 2.71 | 0.68 |
 | Sarvam-2B | 3.01 | 0.53 |
 | GPT-4o | 3.25 | 0.82 |
@@ -17,6 +17,8 @@ Script gap = fertility(native) / fertility(romanized); values below 1.0 indicate
 | GPT-2 (English, baseline) | 22.08 | 4.66 |
 
 A Telugu-specialized 32k BPE tokenizer achieves 2× lower fertility than GPT-4o and fully eliminates the script bias (gap = 0.29). GPT-2's gap of 4.66 represents the worst-case penalty: native Telugu costs 4.66× more tokens than ITRANS romanization of the same text.
+
+¹ HuggingFace model: `pulipakav-1/dravidian-gpt2-telugu`; internal identifier: `telugu-gpt2`.
 
 Wilcoxon signed-rank tests (one-sided, H₁: native > romanized, n = 1000 matched pairs):
 - GPT-2, Claude: p < 0.0001 — native script significantly costlier
