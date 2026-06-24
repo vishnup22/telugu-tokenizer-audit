@@ -1,0 +1,30 @@
+# Telugu minimal pairs — TEMPLATE
+#
+# Instructions for native speaker:
+#   1. Copy this file to minimal_pairs.tsv (same directory)
+#   2. Fill in real Telugu words for each morph_type — aim for 5-10 words per type
+#   3. The "gloss" column should be a brief English gloss of the word/morpheme
+#   4. Do NOT include the word "FAKE" anywhere in the word column
+#   5. Validate all morph_type labels against the list below before running the pipeline
+#
+# Valid morph_type values (from telugu_audit/corpus/loaders.py):
+#   base_noun                 -- uninflected noun root (e.g. "house", "water")
+#   case_suffix               -- noun + case suffix (locative, dative, genitive, etc.)
+#   case_suffix_with_sandhi   -- case suffix where sandhi/phonological change applies at boundary
+#   plural_suffix             -- noun + plural suffix
+#   honorific_suffix          -- noun/verb + honorific marker
+#   compound_with_sandhi      -- compound word with sandhi at the junction
+#   borrowed_base             -- loanword (English/Sanskrit/Persian) in isolation
+#   borrowed_plus_case_suffix -- loanword + Telugu case suffix
+#   verb_agglutination_chain  -- verb stem + tense + agreement + (negation/aspect) chain
+#
+# Column descriptions:
+#   word       -- Telugu word or word form (Unicode, native script preferred; romanized also OK)
+#   gloss      -- brief English gloss
+#   morph_type -- one of the 9 valid types above
+#
+word	gloss	morph_type
+# ADD ROWS BELOW — example structure (replace with real Telugu words):
+# నిల్లు	house	base_noun
+# నిల్లులో	house-LOC	case_suffix
+# నిల్లులు	houses	plural_suffix

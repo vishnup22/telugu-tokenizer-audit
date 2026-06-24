@@ -19,3 +19,6 @@ experiments/*/results/
 experiments/*/figures/
 experiments/*/tables/
 *.log
+.claude_token_cache.json
+data/raw/
+data/processed/

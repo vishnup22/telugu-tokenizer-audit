@@ -1,11 +1,30 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "claude-3-5-haiku-20241022"
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+_DISK_CACHE_PATH = Path(__file__).resolve().parents[4] / ".claude_token_cache.json"
+
+
+def _load_disk_cache() -> dict[str, int]:
+    if _DISK_CACHE_PATH.exists():
+        try:
+            return json.loads(_DISK_CACHE_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {}
+
+
+def _save_disk_cache(cache: dict[str, int]) -> None:
+    try:
+        _DISK_CACHE_PATH.write_text(json.dumps(cache), encoding="utf-8")
+    except Exception as exc:
+        logger.debug("Could not save disk cache: %s", exc)
 
 
 def get_tokenizers() -> tuple[dict, dict]:
@@ -21,7 +40,20 @@ def get_tokenizers() -> tuple[dict, dict]:
         import anthropic
 
         client = anthropic.Anthropic(api_key=api_key)
-        cache: dict[str, int] = {}
+        cache: dict[str, int] = _load_disk_cache()
+        logger.info("Claude disk cache: %d entries pre-loaded", len(cache))
+
+        # Measure message-format overhead once so we return text-only token
+        # counts comparable to tiktoken (which counts raw text, no overhead).
+        # Use "a" as a probe — a single ASCII letter is always 1 token, so
+        # overhead = count_tokens("a") - 1.
+        _probe_resp = client.messages.count_tokens(
+            model=DEFAULT_MODEL,
+            messages=[{"role": "user", "content": "a"}],
+        )
+        _msg_overhead = _probe_resp.input_tokens - 1
+
+        _save_counter = [0]
 
         def count_claude(text: str) -> int:
             if text in cache:
@@ -30,9 +62,15 @@ def get_tokenizers() -> tuple[dict, dict]:
                 model=DEFAULT_MODEL,
                 messages=[{"role": "user", "content": text}],
             )
-            count = resp.input_tokens
+            count = max(0, resp.input_tokens - _msg_overhead)
             cache[text] = count
+            _save_counter[0] += 1
+            if _save_counter[0] % 100 == 0:
+                _save_disk_cache(cache)
             return count
+
+        import atexit
+        atexit.register(_save_disk_cache, cache)
 
         tokenizers["claude"] = count_claude
         versions["claude"] = {

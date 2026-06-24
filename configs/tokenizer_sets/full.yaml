@@ -4,6 +4,7 @@ include:
   - hf-gpt2
   - sarvam-2b
   - sarvam-105b
+  - telugu-gpt2
   # - llama-3
   # - mistral
   # - gemma-2

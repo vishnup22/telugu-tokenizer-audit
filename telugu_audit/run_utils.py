@@ -6,6 +6,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def new_experiment_dir(run_tag: str, base_dir: str = "experiments") -> Path:

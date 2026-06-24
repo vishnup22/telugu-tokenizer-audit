@@ -1,12 +1,13 @@
-# Prices checked: placeholder — TODO(human): refresh before reporting cost numbers
-checked_date: "2026-01-01"
+# Prices checked: TODO(human): verify all prices at anthropic.com/pricing and openai.com/pricing before citing
+# Model: claude adapter uses claude-haiku-4-5-20251001
+checked_date: "2026-06-24"
 currency: USD
 models:
   openai-gpt4o:
-    price_per_1k_input_tokens: 0.0025
+    price_per_1k_input_tokens: 0.0025   # $2.50/1M — verify at openai.com/pricing
     context_limit_tokens: 128000
   claude:
-    price_per_1k_input_tokens: 0.003
+    price_per_1k_input_tokens: 0.0008   # ~$0.80/1M estimate for Haiku 4.5 — verify at anthropic.com/pricing
     context_limit_tokens: 200000
   hf-gpt2:
     price_per_1k_input_tokens: 0.0

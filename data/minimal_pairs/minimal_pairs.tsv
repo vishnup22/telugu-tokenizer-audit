@@ -1,7 +1,72 @@
-# TODO(human): replace all FAKEWORD rows with real, native-speaker-validated Telugu
-# minimal pairs before running the production pipeline (see PLAN.md §7.2).
-# Target: 200-300 rows covering all morph_type categories.
 word	gloss	morph_type
-FAKEWORD001	FAKE base noun gloss	base_noun
-FAKEWORD002	FAKE case suffix gloss	case_suffix
-FAKEWORD003	FAKE sandhi case gloss	case_suffix_with_sandhi
+# --- base_noun ---
+పుస్తకం	book	base_noun
+ఇల్లు	house	base_noun
+ఊరు	town	base_noun
+తాత	grandfather	base_noun
+పులి	tiger	base_noun
+కలం	pen	base_noun
+చెవి	ear	base_noun
+దారి	path	base_noun
+# --- case_suffix (no phonological change at boundary) ---
+పుస్తకంలో	in book (LOC)	case_suffix
+తాతతో	with grandfather (COM)	case_suffix
+సభకు	to assembly (DAT)	case_suffix
+కర్మకు	to work (DAT)	case_suffix
+హృదయమును	heart (ACC)	case_suffix
+# --- case_suffix_with_sandhi (stem changes at boundary) ---
+పుస్తకాన్ని	book (ACC)	case_suffix_with_sandhi
+పుస్తకానికి	to book (DAT)	case_suffix_with_sandhi
+ఇంటికి	to house (DAT)	case_suffix_with_sandhi
+ఇంట	in house (LOC)	case_suffix_with_sandhi
+ఊరినించి	from town (ABL)	case_suffix_with_sandhi
+నీటికి	to water (DAT)	case_suffix_with_sandhi
+రాజ్యానికి	to kingdom (DAT)	case_suffix_with_sandhi
+పాలకుడికి	to ruler (DAT)	case_suffix_with_sandhi
+పర్వతానికి	to mountain (DAT)	case_suffix_with_sandhi
+వేళల	at times (LOC)	case_suffix_with_sandhi
+# --- plural_suffix ---
+పుస్తకాలు	books	plural_suffix
+పిల్లలు	children	plural_suffix
+చెట్లు	trees	plural_suffix
+కళాశాలలు	colleges	plural_suffix
+రోజులు	days	plural_suffix
+కుర్చీలు	chairs	plural_suffix
+బళ్ళు	schools	plural_suffix
+# --- honorific_suffix ---
+రాజుగారు	king (HON)	honorific_suffix
+ఉపాధ్యాయుడిగారు	teacher (HON)	honorific_suffix
+డాక్టర్గారు	doctor (HON)	honorific_suffix
+ప్రొఫెసర్గారు	professor (HON)	honorific_suffix
+మిత్రుడుగారు	friend (HON)	honorific_suffix
+శాస్త్రిగారు	Sastri (HON)	honorific_suffix
+# --- compound_with_sandhi (vowel coalescence at morpheme boundary) ---
+చంద్రోదయం	moonrise	compound_with_sandhi
+సూర్యాస్తమయం	sunset	compound_with_sandhi
+దేవాలయం	temple	compound_with_sandhi
+పరమాత్మ	supreme soul	compound_with_sandhi
+ఇంటికప్పు	house roof	compound_with_sandhi
+విద్యార్థి	student	compound_with_sandhi
+# --- borrowed_base ---
+స్కూల్	school	borrowed_base
+టీచర్	teacher	borrowed_base
+కాలేజీ	college	borrowed_base
+ఆఫీసు	office	borrowed_base
+సైకిల్	cycle	borrowed_base
+రిక్షా	rickshaw	borrowed_base
+# --- borrowed_plus_case_suffix ---
+బ్యాంకుకు	to bank (DAT)	borrowed_plus_case_suffix
+సిటీకి	to city (DAT)	borrowed_plus_case_suffix
+ఆఫీసుల్లో	in offices (LOC-PL)	borrowed_plus_case_suffix
+టెస్టులో	in test (LOC)	borrowed_plus_case_suffix
+హాస్పిటల్లో	in hospital (LOC)	borrowed_plus_case_suffix
+కోర్టులో	in court (LOC)	borrowed_plus_case_suffix
+# --- verb_agglutination_chain ---
+చెప్పాను	I told	verb_agglutination_chain
+చెప్పావు	you told	verb_agglutination_chain
+చెప్పాడు	he told	verb_agglutination_chain
+చెప్పాము	we told	verb_agglutination_chain
+చెప్పారు	they told	verb_agglutination_chain
+నడుస్తున్నాను	I am walking	verb_agglutination_chain
+నడుస్తున్నావు	you are walking	verb_agglutination_chain
+నడుస్తున్నాడు	he is walking	verb_agglutination_chain

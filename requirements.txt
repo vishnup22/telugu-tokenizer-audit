@@ -2,6 +2,8 @@ tiktoken
 anthropic
 transformers
 sentencepiece
+datasets
+indic-transliteration
 pandas
 scipy
 matplotlib
