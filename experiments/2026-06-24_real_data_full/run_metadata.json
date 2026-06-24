@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-06-24T01:56:05.218342+00:00",
+  "config_used": "config_snapshot.yaml",
+  "tokenizer_versions": {
+    "openai-gpt4o": {
+      "library": "tiktoken==0.13.0",
+      "encoding": "o200k_base"
+    },
+    "claude": {
+      "library": "anthropic==0.98.1",
+      "model": "claude-haiku-4-5-20251001",
+      "method": "messages.count_tokens API"
+    },
+    "hf-gpt2": {
+      "library": "transformers==4.57.6",
+      "model": "gpt2",
+      "revision": "unknown"
+    },
+    "sarvam-2b": {
+      "library": "transformers==4.57.6",
+      "model": "sarvamai/sarvam-1-v0.5",
+      "revision": "unknown"
+    },
+    "sarvam-105b": {
+      "library": "transformers==4.57.6",
+      "model": "sarvamai/sarvam-105b",
+      "revision": "unknown"
+    }
+  },
+  "corpus_line_counts": {
+    "native_formal": 789,
+    "native_informal": 1000,
+    "romanized_informal": 1000
+  },
+  "git_commit": "811720035cc98f85c399b0cc4dcb660e2887fb12"
+}

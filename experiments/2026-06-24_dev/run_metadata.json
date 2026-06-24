@@ -1,18 +1,10 @@
 {
-  "timestamp": "2026-06-22T18:24:09.175711+00:00",
+  "timestamp": "2026-06-24T00:52:34.067595+00:00",
   "config_used": "config_snapshot.yaml",
   "tokenizer_versions": {
     "stub-local": {
       "library": "telugu_audit (built-in stub)",
       "method": "len(text)//4"
-    },
-    "openai-gpt4o": {
-      "library": "tiktoken==0.13.0",
-      "encoding": "o200k_base"
-    },
-    "hf-gpt2": {
-      "library": "transformers==4.57.6",
-      "model": "gpt2"
     }
   },
   "corpus_line_counts": {
@@ -20,5 +12,5 @@
     "native_informal": 3,
     "romanized_informal": 3
   },
-  "git_commit": "unknown"
+  "git_commit": "811720035cc98f85c399b0cc4dcb660e2887fb12"
 }

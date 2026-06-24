@@ -1,0 +1,5 @@
+corpus_dir: data/processed
+minimal_pairs_path: data/minimal_pairs/minimal_pairs.tsv
+tokenizer_set: full
+pricing_path: configs/pricing.yaml
+run_tag: dev
