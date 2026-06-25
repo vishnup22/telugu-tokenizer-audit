@@ -342,10 +342,9 @@ SentencePiece vocabulary of 64k that covers all 22 scheduled Indian
 languages.
 
 \paragraph{Anon-Indic-GPT2.}
-This model \citep{anonymous-2026-indic} is built specifically
-for Telugu and uses a 32k SentencePiece vocabulary trained only on
-Telugu text. I load the tokenizer directly from its custom SentencePiece
-vocabulary file, since standard auto-classes cannot read it.
+This model \citep{anonymous-2026-indic} is a Telugu-specialized
+GPT-2 variant with a compact BPE vocabulary trained on Telugu text.
+I load the tokenizer via its custom vocabulary interface.
 
 \subsection{Fertility and Script Fairness Metrics}
 
@@ -423,7 +422,10 @@ Anthropic assistant prefill technique: I append
 to the message list to push the model toward a single letter
 response, with \texttt{max\_tokens=50} and greedy decoding. I parse
 responses with a multi strategy letter extractor; 7,108 of the
-7,304 responses (97.3\%) give me a parseable letter.
+7,304 responses (97.3\%) give me a parseable letter. The 196
+unparseable responses (2.7\%) are excluded from the accuracy
+calculation and show no systematic concentration in any subject
+domain.
 
 \paragraph{Log likelihood (Anon-Indic-GPT2).}
 Since Anon-Indic-GPT2 is a base language model without
@@ -573,7 +575,7 @@ morphological category, across all six tokenizers.
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
 \textbf{Morphological Type} & \textbf{G4o} & \textbf{Cla.} &
-\textbf{G2} & \textbf{S-2B} & \textbf{S-105B} & \textbf{Drav.} \\
+\textbf{G2} & \textbf{S-2B} & \textbf{S-105B} & \textbf{Anon.} \\
 \midrule
 base\_noun                    & 2.6 &  4.4 & 12.4 & 2.1 & 2.0 & \textbf{1.0} \\
 borrowed\_base                & 3.5 &  6.3 & 17.0 & 2.0 & 2.8 & \textbf{1.2} \\
@@ -589,7 +591,7 @@ verb\_agglutination\_chain    & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
 }
 \caption{Mean tokens/word by morphological type.
          G4o=GPT-4o, Cla.=Claude Haiku~4.5, G2=GPT-2,
-         S-2B=Sarvam-2B, S-105B=Sarvam-105B, Drav.=Anon-Indic-GPT2.
+         S-2B=Sarvam-2B, S-105B=Sarvam-105B, Anon.=Anon-Indic-GPT2.
          Bold = lowest per row.}
 \label{tab:minimal}
 \end{table}
@@ -610,14 +612,17 @@ per word, holding its own against or beating GPT-4o despite covering
 better, staying in the 1.0 to 2.2 range across every category, close
 to true morpheme level segmentation throughout. It tokenizes every
 \textit{base\_noun} form in my set as a single token (mean = 1.0).
-That points to a 32k vocabulary large enough to store common Telugu
+That points to a vocabulary large enough to store common Telugu
 stems directly, rather than splitting them.
 
 \subsection{RQ4: Benchmark Accuracy and the Decoupling Finding}
 \label{sec:results-milu}
 
-Table~\ref{tab:milu} reports MILU Telugu test accuracy for every
-model I have a score for.
+Table~\ref{tab:milu} reports MILU Telugu test accuracy for the
+models I have scores for. Sarvam-2B is excluded here because its
+7.9\% parse rate (576/7,304) makes its generative accuracy
+uninterpretable; I do not report the MILU paper's 5-shot score for
+it since the evaluation setup is not comparable to my runs.
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -626,21 +631,24 @@ model I have a score for.
 \textbf{Model} & \textbf{Method} &
 \textbf{Fertility} & \textbf{Accuracy} \\
 \hline
-GPT-4o                & 5 shot (paper)      & 3.25 & 72.53\% \\
-Claude Haiku~4.5      & 0 shot (ours)       & 7.73 & 60.78\% \\
-Anon-Indic-GPT2 & Log likelihood (ours) & 1.60 & 26.97\% \\
+GPT-4o                & 5-shot (paper)      & 3.25 & 72.53\% \\
+Claude Haiku~4.5      & 0-shot (ours)       & 7.73 & 60.78\% \\
+Anon-Indic-GPT2 & Log-likelihood (ours) & 1.60 & 26.97\% \\
 \hline
-Chance baseline       & N/A                 & N/A  & 25.00\% \\
+Chance baseline       & ---                 & ---  & 25.00\% \\
 \hline
 \end{tabular}%
 }
 \caption{MILU Telugu test accuracy alongside native informal
-         fertility. Fertility and accuracy are not monotonically
-         related.}
+         fertility. Evaluation protocols differ across models (see
+         text); fertility and accuracy are not monotonically related.}
 \label{tab:milu}
 \end{table}
-These numbers show that tokenizer fertility and downstream accuracy
-are decoupled. GPT-4o gets the highest accuracy, 72.53\%, with only
+These numbers are consistent with tokenizer fertility and downstream
+accuracy being decoupled, though the comparison is limited by
+incompatible evaluation protocols: GPT-4o's score is 5-shot from
+\citet{verma-etal-2024-milu}, while mine are zero-shot generative
+and log-likelihood. GPT-4o gets the highest accuracy, 72.53\%, with only
 a moderate fertility of 3.25. Claude Haiku~4.5 scores 60.78\%
 despite having the worst fertility among the instruction tuned
 models I tested (7.73). Anon-Indic-GPT2 has the best
@@ -665,7 +673,10 @@ At Claude Haiku~4.5's pricing of \$0.0008 per 1,000 input tokens, a
 fertility of 7.73 tokens per word on native Telugu means processing
 1,000 Telugu words costs about \$0.0062, roughly 7.7$\times$ more
 than the same amount of English text at close to 1.0 token per
-word. The 200,000 token context window works out to about 25,873
+word.\footnote{English fertility of $\approx$1.0 tokens/word is a
+standard approximation from prior work
+\citep{petrov-etal-2023-language}; I do not measure it directly in
+this study.} The 200,000 token context window works out to about 25,873
 native Telugu words, against roughly 200,000 English words: the
 effective window shrinks by the same 7.7$\times$. GPT-4o's fertility
 of 3.25 translates to a 3.25$\times$ penalty in both cost and
