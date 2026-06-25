@@ -502,14 +502,6 @@ Indic languages. This suggests that deliberate multilingual
 tokenizer design can close most of the fertility gap without giving
 up cross lingual coverage.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig1_fertility_bar}
-  \caption{Tokenizer fertility across three corpus registers.
-           dravidian-gpt2-telugu achieves the lowest native-script
-           fertility (1.60); GPT-2 the highest (22.08).}
-  \label{fig:fertility-bar}
-\end{figure*}
 
 \paragraph{Token length distribution.}
 The token length distribution explains where this gap comes from
@@ -522,15 +514,6 @@ or two tokens. That fits with segmentation close to the morpheme
 level, in a language where words are typically just one to three
 morphemes long.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig4_token_length_dist}
-  \caption{Token-length distribution on the native informal register.
-           dravidian-gpt2-telugu encodes 61.6\% of words as a single
-           token; Claude Haiku~4.5 and GPT-2 assign 5+ tokens to
-           over 82\% of words.}
-  \label{fig:token-dist}
-\end{figure*}
 
 \subsection{RQ2: Script Fairness Gap}
 \label{sec:results-gap}
@@ -564,15 +547,6 @@ dravidian-gpt2-telugu & \textbf{0.29} & $-$3.88 & [$-$4.00,\;$-$3.83] & 1.0 \\
 \label{tab:gap}
 \end{table}
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig2_gap_violin}
-  \caption{Per-sentence fertility gap distribution ($n=1{,}000$
-           matched pairs). Orange violins (above zero) indicate
-           native script is costlier; green violins (below zero)
-           indicate romanized is costlier.}
-  \label{fig:violin}
-\end{figure*}
 The results split cleanly along tokenizer origin. Western, general
 purpose tokenizers penalize native Telugu script: the legacy GPT-2
 tokenizer imposes a 4.66$\times$ penalty, with native script
@@ -627,15 +601,6 @@ verb\_agglutination\_chain    & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
 \label{tab:minimal}
 \end{table}
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig3_heatmap_morph}
-  \caption{Mean tokens per word by morphological category
-           (log-scale color). Honorific suffixes and verb
-           agglutination chains incur the highest penalties
-           under general-purpose tokenizers.}
-  \label{fig:heatmap}
-\end{figure*}
 Two morphological categories take the worst hit. \textit{Honorific
 suffix} forms, where an honorific morpheme attaches to a noun or
 verb stem, average 35.5 tokens per word under GPT-2 and 11.7 under
@@ -683,14 +648,6 @@ Chance baseline       & N/A                 & N/A  & 25.00\% \\
          related.}
 \label{tab:milu}
 \end{table}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/fig5_fertility_vs_accuracy}
-  \caption{Fertility vs.\ MILU Telugu accuracy. The absence of a
-           negative correlation confirms that tokenizer efficiency
-           and downstream capability are orthogonal.}
-  \label{fig:scatter}
-\end{figure}
 These numbers show that tokenizer fertility and downstream accuracy
 are decoupled. GPT-4o gets the highest accuracy, 72.53\%, with only
 a moderate fertility of 3.25. Claude Haiku~4.5 scores 60.78\%
