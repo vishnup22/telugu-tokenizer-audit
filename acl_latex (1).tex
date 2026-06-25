@@ -335,7 +335,7 @@ high.
 
 \paragraph{Sarvam-2B and Sarvam-105B.}
 We load both Sarvam models \citep{sarvam-2024} via
-\texttt{AutoTokenizer.from\_pretrained}, from
+\texttt{AutoTokenizer.from\_pretrained} using
 \texttt{sarvamai/sarvam-1-v0.5} and \texttt{sarvamai/sarvam-105b}
 respectively. Both were trained on large Indic corpora and use a
 SentencePiece vocabulary of 64k that covers all 22 scheduled Indian
@@ -384,8 +384,9 @@ makes this ratio a direct measure of script level tokenizer bias.
 
 \paragraph{Significance testing.}
 To test whether the script fairness gap is statistically
-significant, we run the Wilcoxon signed rank test
-\citep{wilcoxon-1945} on the per sentence fertility gaps
+significant, we run a one-sided Wilcoxon signed rank test
+\citep{wilcoxon-1945} ($H_1$: native fertility $>$ romanized
+fertility) on the per sentence fertility gaps
 $\delta_i = \mathcal{F}(t, s_i^{\mathrm{nat}})
 - \mathcal{F}(t, s_i^{\mathrm{rom}})$ across the 1,000 matched
 sentence pairs ($n = 1{,}000$). We also compute 95\% bootstrap
