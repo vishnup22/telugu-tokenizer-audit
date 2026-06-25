@@ -297,7 +297,7 @@ coverage; Table~\ref{tab:tokenizers} summarizes them.
 \textbf{Tokenizer} & \textbf{Backend} & \textbf{Vocab} \\
 \hline
 GPT-4o                & tiktoken \texttt{o200k\_base}  & 200k \\
-Claude Haiku~4.5      & Anthropic API                  & ---  \\
+Claude Haiku~4.5      & Anthropic API                  & n/d\textsuperscript{$\dagger$}  \\
 GPT-2 (legacy)        & HuggingFace BPE                & 50k  \\
 Sarvam-2B             & HuggingFace SentencePiece      & 64k  \\
 Sarvam-105B           & HuggingFace SentencePiece      & 64k  \\
@@ -306,7 +306,8 @@ dravidian-gpt2-telugu & SentencePiece                  & 32k  \\
 \end{tabular}%
 }
 \caption{Tokenizers evaluated in this study with their backends
-         and vocabulary sizes.}
+         and vocabulary sizes. \textsuperscript{$\dagger$}Not publicly
+         disclosed by Anthropic.}
 \label{tab:tokenizers}
 \end{table}
 
@@ -607,15 +608,15 @@ morphological category, across all six tokenizers.
 \textbf{Morphological Type} & \textbf{G4o} & \textbf{Cla.} &
 \textbf{G2} & \textbf{S-2B} & \textbf{S-105B} & \textbf{Drav.} \\
 \midrule
-base\_noun                   & 2.6 &  4.4 & 12.4 & 2.1 & 2.0 & \textbf{1.0} \\
-borrowed\_base               & 3.5 &  6.3 & 17.0 & 2.0 & 2.8 & \textbf{1.2} \\
-borrowed+case\_suffix        & 3.7 &  8.8 & 25.5 & 2.8 & 3.5 & \textbf{1.7} \\
-case\_suffix                 & 3.8 &  5.8 & 19.2 & 3.0 & 3.2 & \textbf{1.6} \\
-case\_suffix+sandhi          & 3.7 &  7.3 & 23.4 & 2.5 & 3.0 & \textbf{1.7} \\
-compound+sandhi              & 4.8 &  9.0 & 27.0 & 3.3 & 4.2 & \textbf{1.8} \\
-honorific\_suffix            & 5.7 & 11.7 & 35.5 & 2.8 & 4.5 & \textbf{2.2} \\
-plural\_suffix               & 3.4 &  7.1 & 21.0 & 2.0 & 3.1 & \textbf{1.3} \\
-verb\_agglutination          & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
+base\_noun                    & 2.6 &  4.4 & 12.4 & 2.1 & 2.0 & \textbf{1.0} \\
+borrowed\_base                & 3.5 &  6.3 & 17.0 & 2.0 & 2.8 & \textbf{1.2} \\
+borrowed\_plus\_case\_suffix  & 3.7 &  8.8 & 25.5 & 2.8 & 3.5 & \textbf{1.7} \\
+case\_suffix                  & 3.8 &  5.8 & 19.2 & 3.0 & 3.2 & \textbf{1.6} \\
+case\_suffix\_with\_sandhi    & 3.7 &  7.3 & 23.4 & 2.5 & 3.0 & \textbf{1.7} \\
+compound\_with\_sandhi        & 4.8 &  9.0 & 27.0 & 3.3 & 4.2 & \textbf{1.8} \\
+honorific\_suffix             & 5.7 & 11.7 & 35.5 & 2.8 & 4.5 & \textbf{2.2} \\
+plural\_suffix                & 3.4 &  7.1 & 21.0 & 2.0 & 3.1 & \textbf{1.3} \\
+verb\_agglutination\_chain    & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
 \bottomrule
 \end{tabular}%
 }
@@ -879,11 +880,12 @@ native Telugu text: dravidian-gpt2-telugu sits at one extreme (1.60
 tokens/word) and GPT-2 at the other (22.08 tokens/word) (RQ1). The
 script fairness gap is statistically significant, and which way it
 runs depends on the tokenizer's origin. General purpose Western
-tokenizers impose a native script penalty between 1.56$\times$ and
-4.66$\times$. Tokenizers trained on Indic data invert that bias:
+tokenizers impose a statistically significant native script penalty
+between 1.56$\times$ and 4.66$\times$ ($p < 10^{-165}$,
+$n = 1{,}000$). Tokenizers trained on Indic data invert that bias:
 native script ends up cheaper than romanized input ($\mathcal{G}$
-between 0.29 and 0.68, all $p < 10^{-165}$ or $p = 1.0$,
-$n = 1{,}000$) (RQ2). The penalty also follows morphological
+between 0.29 and 0.68), confirmed by Wilcoxon tests in the opposing
+direction ($p < 10^{-165}$, $n = 1{,}000$) (RQ2). The penalty also follows morphological
 structure: honorific suffixes and verb agglutination chains take
 the highest token counts of any category, the same constructions
 that define Telugu as an agglutinative language (RQ3). Tokenizer
