@@ -589,7 +589,8 @@ verb\_agglutination\_chain    & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
 }
 \caption{Mean tokens/word by morphological type.
          G4o=GPT-4o, Cla.=Claude Haiku~4.5, G2=GPT-2,
-         S-2B=Sarvam-2B, S-105B=Sarvam-105B, Anon.=Anon-Indic-GPT2.
+         S-2B=Sarvam-2B, S-105B=Sarvam-105B,
+         Anon.=Anon-Indic-GPT2 \citep{anonymous-2026-indic}.
          Bold = lowest per row.}
 \label{tab:minimal}
 \end{table}
@@ -638,15 +639,18 @@ Chance baseline       & ---                 & ---  & 25.00\% \\
 \end{tabular}%
 }
 \caption{MILU Telugu accuracy and native informal fertility.
-         Sarvam-2B excluded (7.9\% parse rate; see \S\ref{sec:benchmark}).
-         Evaluation protocols differ across models (see text).}
+         Sarvam-2B excluded: 7.9\% parse rate (576/7{,}304) makes
+         generative accuracy uninterpretable; its paper-reported
+         5-shot score of 28.57\% uses an incomparable setup.
+         Evaluation protocols differ across models (see \S\ref{sec:benchmark}).}
 \label{tab:milu}
 \end{table}
 These numbers are consistent with tokenizer fertility and downstream
-accuracy being decoupled, though the comparison is limited by
-incompatible evaluation protocols: GPT-4o's score is 5-shot from
-\citet{verma-etal-2024-milu}, while mine are zero-shot generative
-and log-likelihood. GPT-4o gets the highest accuracy, 72.53\%, with only
+accuracy being decoupled, though this conclusion should be read
+cautiously: the three models use incompatible evaluation protocols
+(5-shot paper-reported vs.\ zero-shot generative vs.\ log-likelihood),
+which prevents direct comparison. Within those constraints, the
+pattern holds across all three models in the same direction. GPT-4o gets the highest accuracy, 72.53\%, with only
 a moderate fertility of 3.25. Claude Haiku~4.5 scores 60.78\%
 despite having the worst fertility among the instruction tuned
 models I tested (7.73). Anon-Indic-GPT2 has the best
@@ -760,8 +764,10 @@ coverage, as long as the vocabulary budget is big enough.
 
 \subsection{Decoupling Fertility from Capability}
 
-The MILU results in Table~\ref{tab:milu} show that tokenizer
-efficiency and downstream accuracy do not move together. GPT-4o
+The MILU results in Table~\ref{tab:milu} are consistent with
+tokenizer efficiency and downstream accuracy not moving together,
+with the caveat that evaluation protocols differ across models
+(see \S\ref{sec:benchmark}). GPT-4o
 gets the highest accuracy, 72.53\%, at a moderate fertility of 3.25.
 Claude Haiku~4.5 comes in second at 60.78\%, despite having the
 worst fertility of any instruction tuned model I tested (7.73).
