@@ -291,7 +291,6 @@ and 1,000 romanized informal.
 
 I evaluate six tokenizers across three tiers of Indic language
 coverage; Table~\ref{tab:tokenizers} summarizes them.
-
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -313,7 +312,6 @@ Anon-Indic-GPT2 & SentencePiece                  & 32k  \\
          disclosed by Anthropic.}
 \label{tab:tokenizers}
 \end{table}
-
 \paragraph{GPT-4o.}
 I get token counts from the \texttt{tiktoken} library using the
 \texttt{o200k\_base} encoding, the same tokenizer that GPT-4o uses.
@@ -465,7 +463,6 @@ cite the MILU paper's 5 shot score of 28.57\% for reference only.
 
 Table~\ref{tab:fertility} shows fertility $\mathcal{F}(t, R)$ for
 each of the six tokenizers across the three corpus registers.
-
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -487,7 +484,6 @@ Anon-Indic-GPT2 & \textbf{1.68} & \textbf{1.60} &  5.49 \\
          Lower is more efficient. Bold = best per register.}
 \label{tab:fertility}
 \end{table}
-
 Fertility varies a lot across tokenizers. On the native informal
 register, which is the closest proxy I have for everyday Telugu
 usage, Anon-Indic-GPT2 reaches the lowest fertility at 1.60
@@ -521,7 +517,6 @@ morphemes long.
 Table~\ref{tab:gap} reports the script fairness gap $\mathcal{G}(t)$
 together with Wilcoxon signed rank test results and 95\% bootstrap
 confidence intervals on the median per sentence gap.
-
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -546,7 +541,6 @@ Anon-Indic-GPT2 & \textbf{0.29} & $-$3.88 & [$-$4.00,\;$-$3.83] & 1.0 \\
          $\mathcal{G}(t){<}1$: romanized costlier.}
 \label{tab:gap}
 \end{table}
-
 The results split cleanly along tokenizer origin. Western, general
 purpose tokenizers penalize native Telugu script: the legacy GPT-2
 tokenizer imposes a 4.66$\times$ penalty, with native script
@@ -573,7 +567,6 @@ is not statistically significant ($p=1.0$).
 
 Table~\ref{tab:minimal} gives mean tokens per word for each
 morphological category, across all six tokenizers.
-
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -600,7 +593,6 @@ verb\_agglutination\_chain    & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
          Bold = lowest per row.}
 \label{tab:minimal}
 \end{table}
-
 Two morphological categories take the worst hit. \textit{Honorific
 suffix} forms, where an honorific morpheme attaches to a noun or
 verb stem, average 35.5 tokens per word under GPT-2 and 11.7 under
@@ -626,7 +618,6 @@ stems directly, rather than splitting them.
 
 Table~\ref{tab:milu} reports MILU Telugu test accuracy for every
 model I have a score for.
-
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
