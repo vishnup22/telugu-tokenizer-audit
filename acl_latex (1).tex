@@ -111,10 +111,10 @@ this bias. At current prices, Telugu speakers pay roughly
 7.7$\times$ more than English speakers for equivalent text, with a
 context window 7.7$\times$ smaller. On MILU
 \citep{verma-etal-2024-milu} (7,304 Telugu MCQ questions), efficiency
-and accuracy are decoupled: GPT-4o scores 72.53\% (5 shot) despite a
-moderate fertility penalty, while Anon-Indic-GPT2, the most
-efficient tokenizer, scores 26.97\%, near chance. The token tax
-reflects pricing, not capability.
+and accuracy do not co-vary: GPT-4o scores 72.53\% (5-shot, from
+prior work) despite a moderate fertility penalty, while
+Anon-Indic-GPT2, the most efficient tokenizer, scores 26.97\%,
+near chance. The token tax reflects pricing, not capability.
 \end{abstract}
 
 \section{Introduction}
@@ -182,7 +182,8 @@ My contributions are:
     biggest penalty (\S\ref{sec:results-minimal});
     \item A zero shot MILU evaluation of Claude Haiku~4.5 across
     7,304 Telugu MCQ questions, showing that tokenizer efficiency and
-    downstream accuracy are decoupled (\S\ref{sec:results-milu});
+    downstream accuracy need not co-vary, with evaluation protocol
+    caveats (\S\ref{sec:results-milu});
     \item A quantification of the real world cost and context
     window consequences Telugu speakers face when using commercial
     APIs (\S\ref{sec:discussion}).
@@ -637,6 +638,7 @@ Chance baseline       & ---                 & ---  & 25.00\% \\
 \end{tabular}%
 }
 \caption{MILU Telugu accuracy and native informal fertility.
+         Sarvam-2B excluded (7.9\% parse rate; see \S\ref{sec:benchmark}).
          Evaluation protocols differ across models (see text).}
 \label{tab:milu}
 \end{table}
@@ -843,11 +845,10 @@ between 0.29 and 0.68), confirmed by Wilcoxon tests in the opposing
 direction ($p < 10^{-165}$, $n = 1{,}000$) (RQ2). The penalty also follows morphological
 structure: honorific suffixes and verb agglutination chains take
 the highest token counts of any category, the same constructions
-that define Telugu as an agglutinative language (RQ3). Tokenizer
-fertility and downstream MILU accuracy are decoupled: the model
-with the best tokenizer scores near chance, 26.97\%, while the
-model with the worst tokenizer among instruction tuned models
-scores 60.78\%. That gap is the clearest evidence in the paper that
+that define Telugu as an agglutinative language (RQ3). Tokenizer fertility and downstream MILU accuracy do not co-vary
+in this study: the model with the best tokenizer scores near
+chance, 26.97\%, while the model with the worst tokenizer among
+instruction-tuned models scores 60.78\%. That gap is the clearest evidence in the paper that
 the token tax is about pricing, not capability (RQ4).
 
 These findings point to two concrete recommendations for tokenizer
