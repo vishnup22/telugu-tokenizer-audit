@@ -307,9 +307,8 @@ Anon-Indic-GPT2 & SentencePiece                  & 32k  \\
 \hline
 \end{tabular}%
 }
-\caption{Tokenizers evaluated in this study with their backends
-         and vocabulary sizes. \textsuperscript{$\dagger$}Not publicly
-         disclosed by Anthropic.}
+\caption{Tokenizers, backends, and vocabulary sizes.
+         \textsuperscript{$\dagger$}Not publicly disclosed by Anthropic.}
 \label{tab:tokenizers}
 \end{table}
 \paragraph{GPT-4o.}
@@ -482,8 +481,7 @@ Anon-Indic-GPT2 & \textbf{1.68} & \textbf{1.60} &  5.49 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Fertility (tokens/word) by tokenizer and register.
-         Lower is more efficient. Bold = best per register.}
+\caption{Fertility (tokens/word) by tokenizer and register. Bold = best.}
 \label{tab:fertility}
 \end{table}
 Fertility varies a lot across tokenizers. On the native informal
@@ -536,10 +534,9 @@ Anon-Indic-GPT2 & \textbf{0.29} & $-$3.88 & [$-$4.00,\;$-$3.83] & 1.0 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Script fairness gap $\mathcal{G}(t)$, median per-sentence
-         gap $\delta$ (tokens/word), 95\% bootstrap CI, and
-         Wilcoxon signed-rank $p$-value ($n=1{,}000$ pairs).
-         $\mathcal{G}(t){>}1$: native costlier.
+\caption{Script fairness gap $\mathcal{G}(t)$, median $\delta$,
+         95\% CI, and Wilcoxon $p$ ($n=1{,}000$).
+         $\mathcal{G}(t){>}1$: native costlier;
          $\mathcal{G}(t){<}1$: romanized costlier.}
 \label{tab:gap}
 \end{table}
@@ -639,9 +636,8 @@ Chance baseline       & ---                 & ---  & 25.00\% \\
 \hline
 \end{tabular}%
 }
-\caption{MILU Telugu test accuracy alongside native informal
-         fertility. Evaluation protocols differ across models (see
-         text); fertility and accuracy are not monotonically related.}
+\caption{MILU Telugu accuracy and native informal fertility.
+         Evaluation protocols differ across models (see text).}
 \label{tab:milu}
 \end{table}
 These numbers are consistent with tokenizer fertility and downstream
