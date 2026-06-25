@@ -28,24 +28,28 @@ import pandas as pd
 mpl.rcParams.update({
     "font.family":        "serif",
     "font.serif":         ["DejaVu Serif", "Times New Roman", "Times", "serif"],
-    "font.size":          11,
-    "axes.titlesize":     11,
-    "axes.labelsize":     11,
-    "xtick.labelsize":    10,
-    "ytick.labelsize":    10,
-    "legend.fontsize":    10,
+    "font.size":          7,
+    "axes.titlesize":     7,
+    "axes.labelsize":     7,
+    "xtick.labelsize":    6.5,
+    "ytick.labelsize":    6.5,
+    "legend.fontsize":    6.5,
     "figure.dpi":         300,
     "savefig.dpi":        300,
     "savefig.bbox":       "tight",
-    "savefig.pad_inches": 0.05,
+    "savefig.pad_inches": 0.03,
     "axes.spines.top":    False,
     "axes.spines.right":  False,
     "axes.grid":          True,
-    "grid.linewidth":     0.5,
+    "grid.linewidth":     0.4,
     "grid.alpha":         0.4,
     "pdf.fonttype":       42,
     "ps.fonttype":        42,
 })
+
+# ACL two-column dimensions in inches
+COL_W  = 3.33   # single column width
+TEXT_W = 6.97   # full text width (both columns)
 
 # Colorblind-safe (Wong 2011)
 COLORS = {
@@ -111,7 +115,7 @@ def fig1_fertility_bar(df: pd.DataFrame, out: Path) -> None:
     gap   = 0.08
     x = np.arange(n_tok) * (len(registers) * bar_w + gap)
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(TEXT_W, 2.4))
 
     for i, reg in enumerate(registers):
         vals = []
@@ -144,7 +148,7 @@ def fig1_fertility_bar(df: pd.DataFrame, out: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def fig2_gap_violin(df: pd.DataFrame, out: Path) -> None:
-    fig, ax = plt.subplots(figsize=(8, 4.2))
+    fig, ax = plt.subplots(figsize=(TEXT_W, 2.6))
 
     data, labels = [], []
     native_costlier  = "#E69F00"
@@ -211,7 +215,7 @@ def fig3_heatmap_morph(df: pd.DataFrame, out: Path) -> None:
             if len(row):
                 matrix[i, j] = float(row["mean_tokens"].iloc[0])
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(TEXT_W, 3.2))
 
     im = ax.imshow(matrix, aspect="auto", cmap="YlOrRd",
                    norm=LogNorm(vmin=1.0, vmax=matrix.max()))
@@ -263,7 +267,7 @@ def fig4_token_length_dist(df: pd.DataFrame, out: Path) -> None:
             if len(row):
                 pct[i, j] = float(row["pct_words"].iloc[0])
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(TEXT_W, 2.4))
     bottoms = np.zeros(len(TOKENIZER_ORDER))
     bar_w = 0.55
 
@@ -303,46 +307,42 @@ def fig5_fertility_vs_accuracy(df: pd.DataFrame,
     points = [
         dict(label="GPT-4o\n(paper, 5-shot)",
              fertility=_fert("openai-gpt4o"), accuracy=72.53,
-             color="#0072B2", marker="s"),
+             color="#0072B2", marker="s",
+             xytext=(4.2, 68)),
         dict(label="Claude Haiku 4.5\n(ours, 0-shot)",
              fertility=_fert("claude"),
              accuracy=milu_claude.get("accuracy_pct", 60.78),
-             color="#E69F00", marker="o"),
+             color="#E69F00", marker="o",
+             xytext=(6.0, 52)),
         dict(label="dravidian-gpt2-telugu\n(ours, log-likelihood)",
              fertility=_fert("telugu-gpt2"),
              accuracy=milu_dravidian.get("accuracy_pct", 26.97),
-             color="#009E73", marker="^"),
+             color="#009E73", marker="^",
+             xytext=(2.8, 14)),
     ]
 
-    fig, ax = plt.subplots(figsize=(5.5, 4.2))
-
-    offsets = {
-        "s": (0.25, 2.5),
-        "o": (0.25, 2.5),
-        "^": (0.25, -6.5),
-    }
+    fig, ax = plt.subplots(figsize=(COL_W, 2.8))
 
     for pt in points:
         ax.scatter(pt["fertility"], pt["accuracy"],
                    color=pt["color"], marker=pt["marker"],
-                   s=120, zorder=3, edgecolors="0.3", linewidths=0.8)
-        dx, dy = offsets[pt["marker"]]
+                   s=40, zorder=3, edgecolors="0.3", linewidths=0.5)
         ax.annotate(pt["label"],
                     xy=(pt["fertility"], pt["accuracy"]),
-                    xytext=(pt["fertility"] + dx, pt["accuracy"] + dy),
-                    fontsize=9.5,
-                    arrowprops=dict(arrowstyle="-", color="0.55", lw=0.7))
+                    xytext=pt["xytext"],
+                    fontsize=5.5,
+                    arrowprops=dict(arrowstyle="-", color="0.55", lw=0.5))
 
-    ax.axhline(25.0, color="0.5", linewidth=1.0, linestyle="--")
-    ax.text(0.3, 26.2, "Chance (25%)", fontsize=9, color="0.5")
+    ax.axhline(25.0, color="0.5", linewidth=0.8, linestyle="--")
+    ax.text(8.5, 26.5, "Chance (25%)", fontsize=5.5, color="0.5", ha="right")
 
     ax.set_xlabel("Native informal fertility (tokens / word)")
     ax.set_ylabel("MILU Telugu accuracy (%)")
     ax.set_xlim(0, 10.5)
     ax.set_ylim(0, 88)
-    ax.text(0.98, 0.97, "Lower fertility ≠ higher accuracy",
-            transform=ax.transAxes, ha="right", va="top",
-            fontsize=10, style="italic", color="0.4")
+    ax.text(0.98, 0.04, "Lower fertility $\\neq$ higher accuracy",
+            transform=ax.transAxes, ha="right", va="bottom",
+            fontsize=5.5, style="italic", color="0.45")
 
     fig.tight_layout()
     fig.savefig(out)

@@ -501,14 +501,14 @@ Indic languages. This suggests that deliberate multilingual
 tokenizer design can close most of the fertility gap without giving
 up cross lingual coverage.
 
-\begin{figure}[H]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/fig1_fertility_bar}
+  \includegraphics[width=\textwidth]{figures/fig1_fertility_bar}
   \caption{Tokenizer fertility across three corpus registers.
            dravidian-gpt2-telugu achieves the lowest native-script
            fertility (1.60); GPT-2 the highest (22.08).}
   \label{fig:fertility-bar}
-\end{figure}
+\end{figure*}
 
 \paragraph{Token length distribution.}
 The token length distribution explains where this gap comes from
@@ -521,15 +521,15 @@ or two tokens. That fits with segmentation close to the morpheme
 level, in a language where words are typically just one to three
 morphemes long.
 
-\begin{figure}[H]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/fig4_token_length_dist}
+  \includegraphics[width=\textwidth]{figures/fig4_token_length_dist}
   \caption{Token-length distribution on the native informal register.
            dravidian-gpt2-telugu encodes 61.6\% of words as a single
            token; Claude Haiku~4.5 and GPT-2 assign 5+ tokens to
            over 82\% of words.}
   \label{fig:token-dist}
-\end{figure}
+\end{figure*}
 
 \subsection{RQ2: Script Fairness Gap}
 \label{sec:results-gap}
@@ -563,15 +563,15 @@ dravidian-gpt2-telugu & \textbf{0.29} & $-$3.88 & [$-$4.00,\;$-$3.83] & 1.0 \\
 \label{tab:gap}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/fig2_gap_violin}
+  \includegraphics[width=\textwidth]{figures/fig2_gap_violin}
   \caption{Per-sentence fertility gap distribution ($n=1{,}000$
            matched pairs). Orange violins (above zero) indicate
            native script is costlier; green violins (below zero)
            indicate romanized is costlier.}
   \label{fig:violin}
-\end{figure}
+\end{figure*}
 The results split cleanly along tokenizer origin. Western, general
 purpose tokenizers penalize native Telugu script: the legacy GPT-2
 tokenizer imposes a 4.66$\times$ penalty, with native script
@@ -626,15 +626,15 @@ verb\_agglutination          & 4.6 &  8.8 & 29.6 & 2.0 & 3.5 & \textbf{1.8} \\
 \label{tab:minimal}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/fig3_heatmap_morph}
+  \includegraphics[width=\textwidth]{figures/fig3_heatmap_morph}
   \caption{Mean tokens per word by morphological category
            (log-scale color). Honorific suffixes and verb
            agglutination chains incur the highest penalties
            under general-purpose tokenizers.}
   \label{fig:heatmap}
-\end{figure}
+\end{figure*}
 Two morphological categories take the worst hit. \textit{Honorific
 suffix} forms, where an honorific morpheme attaches to a noun or
 verb stem, average 35.5 tokens per word under GPT-2 and 11.7 under
