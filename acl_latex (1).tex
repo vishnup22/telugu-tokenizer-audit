@@ -507,10 +507,10 @@ up cross lingual coverage.
 The token length distribution explains where this gap comes from
 structurally. Claude Haiku~4.5 assigns five or more tokens to 82.5\%
 of native informal Telugu words. The legacy GPT-2 tokenizer assigns
-five or more tokens to 97.8\% of words; at that rate it is
+five or more tokens to 95.7\% of words; at that rate it is
 essentially falling back to byte level encoding for Telugu Unicode.
-dravidian-gpt2-telugu, by contrast, keeps 69.7\% of words within one
-or two tokens. That fits with segmentation close to the morpheme
+dravidian-gpt2-telugu, by contrast, keeps 86.2\% of words within one
+or two tokens (61.6\% as a single token). That fits with segmentation close to the morpheme
 level, in a language where words are typically just one to three
 morphemes long.
 
