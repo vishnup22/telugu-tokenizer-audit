@@ -1,0 +1,8 @@
+benchmark: MILU-Telugu (test)
+citation: Verma et al. 2024 (arXiv:2411.02538)
+notes: sarvam-2b evaluated with length-normalized log-likelihood scoring on local
+  model. GPT-4o score (72.53%) is from MILU paper Table 3 under a separate 5-shot
+  protocol.
+accuracy_by_model:
+  openai-gpt4o: 72.53
+  sarvam-2b: 28.19

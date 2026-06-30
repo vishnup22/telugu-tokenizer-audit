@@ -1,0 +1,6 @@
+benchmark: MILU-Telugu (test, log-likelihood)
+citation: Verma et al. 2024 (arXiv:2411.02538)
+notes: dravidian-gpt2-telugu evaluated via log-likelihood (length-normalised) — base
+  LM, no instruction following. Chance baseline = 25.0%.
+accuracy_by_model:
+  telugu-gpt2: 26.97
