@@ -7,6 +7,6 @@ include:
   - telugu-gpt2
   - xlm-r
   - indicbert
-  - llama-3
+  # - llama-3
   # - mistral
   # - gemma-2

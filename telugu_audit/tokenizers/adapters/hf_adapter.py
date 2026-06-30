@@ -5,13 +5,14 @@ import os
 
 logger = logging.getLogger(__name__)
 
-# model_id: HuggingFace repo. trust_remote_code required for models with custom architectures.
-# use_sentencepiece: True when AutoTokenizer loads a broken stub — load tokenizer.model directly.
 HF_MODELS: dict[str, dict] = {
     "hf-gpt2": {"model_id": "gpt2"},
-    "sarvam-2b": {"model_id": "sarvamai/sarvam-1-v0.5"},
+    "sarvam-2b": {"model_id": "sarvamai/sarvam-2b-v0.5"},
     "sarvam-105b": {"model_id": "sarvamai/sarvam-105b", "trust_remote_code": True},
     "telugu-gpt2": {"model_id": "pulipakav-1/dravidian-gpt2-telugu", "use_sentencepiece": True},
+    "xlm-r": {"model_id": "xlm-roberta-base"},
+    "indicbert": {"model_id": "ai4bharat/indic-bert"},
+    "llama-3": {"model_id": "meta-llama/Meta-Llama-3-8B"},
 }
 
 
@@ -25,7 +26,7 @@ def _load_sentencepiece(model_id: str, token: str | None) -> object:
     return sp
 
 
-def get_tokenizers() -> tuple[dict, dict]:
+def get_tokenizers(include: set[str] | None = None) -> tuple[dict, dict]:
     tokenizers: dict = {}
     versions: dict = {}
 
@@ -37,8 +38,11 @@ def get_tokenizers() -> tuple[dict, dict]:
         return tokenizers, versions
 
     token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_HUB_TOKEN")
+    selected_names = include if include is not None else set(HF_MODELS)
 
     for name, cfg in HF_MODELS.items():
+        if name not in selected_names:
+            continue
         model_id = cfg["model_id"]
         try:
             if cfg.get("use_sentencepiece"):

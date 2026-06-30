@@ -4,26 +4,23 @@ from pathlib import Path
 
 import pandas as pd
 
+from telugu_audit.metrics.fertility import word_count
 
-def per_line_fertility(lines: list[str], count_fn) -> pd.Series:
-    """Per-line fertility (tokens / whitespace words) for a corpus register."""
+
+def per_line_fertility(lines: list[str], count_fn, word_count_fn=word_count) -> pd.Series:
+    """Per-line fertility (tokens / word-count denominator) for a corpus register."""
     result = []
     for line in lines:
-        words = len(line.split())
+        words = word_count_fn(line)
         if words == 0:
             continue
         result.append(count_fn(line) / words)
     return pd.Series(result, name="fertility")
 
 
-def distribution_summary(lines: list[str], count_fn) -> dict:
-    """Percentile summary of per-line fertility.
-
-    Percentiles alongside the mean show whether high mean fertility is
-    consistent across the corpus or driven by a handful of long compounds —
-    a key check reviewers will ask for.
-    """
-    f = per_line_fertility(lines, count_fn)
+def distribution_summary(lines: list[str], count_fn, word_count_fn=word_count) -> dict:
+    """Percentile summary of per-line fertility."""
+    f = per_line_fertility(lines, count_fn, word_count_fn=word_count_fn)
     return {
         "n_lines": int(len(f)),
         "mean": float(f.mean()),
@@ -37,12 +34,8 @@ def distribution_summary(lines: list[str], count_fn) -> dict:
 
 
 def tokens_per_word_buckets(words: list[str], count_fn) -> pd.DataFrame:
-    """Distribution of token counts per word: 1 / 2 / 3 / 4 / 5+ buckets.
+    """Distribution of token counts per word: 1 / 2 / 3 / 4 / 5+ buckets."""
 
-    Single-token words are in the tokenizer's vocabulary; 5+ tokens signals
-    aggressive subword splintering — the hallmark of a low-resource language
-    in a tokenizer trained on English-heavy data.
-    """
     def _bucket(n: int) -> str:
         return str(n) if n <= 4 else "5+"
 
@@ -64,6 +57,8 @@ def run_distribution_stage(
     experiment_dir: Path,
     corpora: dict[str, list[str]],
     tokenizers: dict,
+    word_count_fn=word_count,
+    word_count_method: str = "whitespace",
 ) -> None:
     """Write per-register fertility percentiles and token-length histograms."""
     results_dir = experiment_dir / "results"
@@ -74,8 +69,15 @@ def run_distribution_stage(
 
     for tok_name, count_fn in tokenizers.items():
         for register, lines in corpora.items():
-            summary = distribution_summary(lines, count_fn)
-            dist_rows.append({"tokenizer": tok_name, "register": register, **summary})
+            summary = distribution_summary(lines, count_fn, word_count_fn=word_count_fn)
+            dist_rows.append(
+                {
+                    "tokenizer": tok_name,
+                    "register": register,
+                    "word_count_method": word_count_method,
+                    **summary,
+                }
+            )
 
             words = [w for line in lines for w in line.split() if w]
             buckets = tokens_per_word_buckets(words, count_fn)

@@ -1,20 +1,5 @@
 #!/usr/bin/env python3
-"""Collect raw Telugu corpus from Hugging Face and write to data/raw/.
-
-Stages:
-  1. native_formal.txt       -- Telugu Wikipedia sentences
-                                (vengi-ai/telugu-wikipedia-clean, CC-BY-SA-4.0)
-  2. native_informal.txt     -- social-media sentences
-                                (mounikaiiith/Telugu_Sentiment +
-                                 mounikaiiith/Telugu-Hatespeech, CC-BY-4.0)
-  3. romanized_informal.txt  -- ITRANS transliteration of native_informal
-                                (line-matched; required by script_gap_stats)
-
-Run this before scripts/01_build_corpus.py:
-
-  python scripts/collect_data.py --n-samples 1000
-  python scripts/01_build_corpus.py --config configs/default.yaml
-"""
+"""Collect raw Telugu corpus from Hugging Face and write to data/raw/."""
 
 from __future__ import annotations
 
@@ -24,6 +9,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from telugu_audit.corpus.collectors.english_wikipedia_collector import (
+    collect_english_wikipedia,
+)
 from telugu_audit.corpus.collectors.social_media_collector import collect_social_media
 from telugu_audit.corpus.collectors.transliteration_collector import collect_romanized
 from telugu_audit.corpus.collectors.wikipedia_collector import collect_wikipedia
@@ -46,12 +34,17 @@ def main() -> None:
         help="Lines to sample per native register (default: 1000)",
     )
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--include-english",
+        action="store_true",
+        help="Also collect english_wiki.txt for the direct English baseline",
+    )
     args = parser.parse_args()
 
     raw_dir = Path(args.output_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"[1/3] native_formal — sampling {args.n_samples} Wikipedia sentences ...")
+    print(f"[1/3] native_formal - sampling {args.n_samples} Wikipedia sentences ...")
     n = collect_wikipedia(
         raw_dir / "native_formal.txt",
         n_samples=args.n_samples,
@@ -59,7 +52,7 @@ def main() -> None:
     )
     print(f"      {n} lines -> {raw_dir / 'native_formal.txt'}")
 
-    print(f"[2/3] native_informal — sampling {args.n_samples} social-media sentences ...")
+    print(f"[2/3] native_informal - sampling {args.n_samples} social-media sentences ...")
     n = collect_social_media(
         raw_dir / "native_informal.txt",
         n_samples=args.n_samples,
@@ -67,12 +60,21 @@ def main() -> None:
     )
     print(f"      {n} lines -> {raw_dir / 'native_informal.txt'}")
 
-    print("[3/3] romanized_informal — transliterating native_informal (ITRANS) ...")
+    print("[3/3] romanized_informal - transliterating native_informal (ITRANS) ...")
     n = collect_romanized(
         raw_dir / "native_informal.txt",
         raw_dir / "romanized_informal.txt",
     )
     print(f"      {n} lines -> {raw_dir / 'romanized_informal.txt'}")
+
+    if args.include_english:
+        print(f"[4/4] english_wiki - sampling {args.n_samples} English Wikipedia sentences ...")
+        n = collect_english_wikipedia(
+            raw_dir / "english_wiki.txt",
+            n_samples=args.n_samples,
+            seed=args.seed,
+        )
+        print(f"      {n} lines -> {raw_dir / 'english_wiki.txt'}")
 
     print(f"\nDone. Raw corpus at {raw_dir}/")
     print("Next: python scripts/01_build_corpus.py --config configs/default.yaml")

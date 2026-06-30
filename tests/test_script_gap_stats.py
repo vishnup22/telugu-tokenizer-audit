@@ -5,24 +5,18 @@ import pytest
 
 from telugu_audit.analysis.script_gap_stats import (
     per_sentence_gap,
+    rank_biserial_correlation,
     test_gap_significance as check_gap_significance,
 )
 
 
 def _count_fn(text: str) -> int:
-    # words starting with upper-case cost 3 tokens; lower-case cost 2
     return sum(3 if w[0].isupper() else 2 for w in text.split() if w)
 
 
-# native lines use upper-case words (3 tok/word → fertility 3.0)
-# romanized lines use lower-case words (2 tok/word → fertility 2.0)
 _NATIVE = ["Telugu Telugu Telugu"] * 20
-_ROMAN  = ["roman roman roman"]   * 20
+_ROMAN = ["roman roman roman"] * 20
 
-
-# ---------------------------------------------------------------------------
-# per_sentence_gap
-# ---------------------------------------------------------------------------
 
 def test_per_sentence_gap_row_count():
     df = per_sentence_gap(_NATIVE, _ROMAN, _count_fn)
@@ -52,14 +46,10 @@ def test_per_sentence_gap_unequal_lengths_raises():
 
 def test_per_sentence_gap_skips_blank_lines():
     native = ["Telugu Telugu", "", "Telugu Telugu Telugu"]
-    roman  = ["roman roman",   "", "roman roman roman"]
+    roman = ["roman roman", "", "roman roman roman"]
     df = per_sentence_gap(native, roman, _count_fn)
-    assert len(df) == 2  # blank pair dropped
+    assert len(df) == 2
 
-
-# ---------------------------------------------------------------------------
-# check_gap_significance (wraps test_gap_significance from the module)
-# ---------------------------------------------------------------------------
 
 def test_significance_detects_positive_gap():
     gap_df = pd.DataFrame({"fertility_gap": [1.0] * 20})
@@ -80,9 +70,9 @@ def test_significance_result_keys():
     gap_df = pd.DataFrame({"fertility_gap": [0.5] * 15})
     result = check_gap_significance(gap_df, n_bootstrap=200)
     assert set(result.keys()) == {
-        "n_pairs", "median_gap", "mean_gap", "pct_pairs_native_costlier",
-        "wilcoxon_statistic", "p_value",
-        "bootstrap_ci_95_low", "bootstrap_ci_95_high",
+        "n_pairs", "n_nonzero_pairs", "median_gap", "mean_gap", "median_direction",
+        "pct_pairs_native_costlier", "wilcoxon_statistic", "p_value",
+        "rank_biserial_correlation", "bootstrap_ci_95_low", "bootstrap_ci_95_high",
     }
 
 
@@ -97,3 +87,14 @@ def test_significance_seed_reproducible():
     r1 = check_gap_significance(gap_df, n_bootstrap=200, seed=7)
     r2 = check_gap_significance(gap_df, n_bootstrap=200, seed=7)
     assert r1["bootstrap_ci_95_low"] == r2["bootstrap_ci_95_low"]
+
+
+def test_rank_biserial_correlation_handles_all_positive_deltas():
+    assert rank_biserial_correlation(pd.Series([1.0] * 10)) == pytest.approx(1.0)
+
+
+def test_significance_reports_direction_and_effect_size():
+    gap_df = pd.DataFrame({"fertility_gap": [-0.5] * 20})
+    result = check_gap_significance(gap_df, n_bootstrap=200)
+    assert result["median_direction"] == "romanized_costlier"
+    assert result["rank_biserial_correlation"] < 0

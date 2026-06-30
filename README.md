@@ -1,102 +1,125 @@
-# Telugu Tokenizer Fertility & Fairness Audit
+# Telugu Tokenizer Fertility and Fairness Audit
 
-A reproducible empirical audit measuring how six LLM tokenizers handle Telugu across three corpus registers. The study quantifies the **script fairness gap** — the token cost penalty imposed on native Telugu script relative to romanized Telugu — and provides a morphological breakdown via 62 validated minimal pairs.
+A reproducible empirical audit of how multiple LLM tokenizers handle Telugu across formal, informal, romanized, and English baseline registers. The repo measures fertility, script fairness, morphological sensitivity, and the pricing/context implications of tokenizer design.
 
-## Findings
+## Current status
 
-Fertility = mean tokens per whitespace-delimited word on the `native_informal` register.
-Script gap = fertility(native) / fertility(romanized); values below 1.0 indicate native script is *cheaper*.
+The main local revision items are now implemented in the codebase and rerun on the latest full experiment:
+- dual-denominator fertility outputs with `whitespace` and `indicnlp`
+- two-sided Wilcoxon signed-rank testing
+- rank-biserial effect sizes
+- BCa bootstrap median confidence intervals
+- minimal-pair variance summaries and Kruskal-Wallis tests
+- `xlm-r`, `indicbert`, and `llama-3` tokenizer runs
+- direct `english_wiki` baseline collection and integration
+- Sarvam log-likelihood MILU evaluation script
 
-| Tokenizer | Fertility | Script gap |
-|---|:---:|:---:|
-| dravidian-gpt2-telugu¹ (32k BPE, Telugu) | **1.60** | **0.29** |
-| Sarvam-105B | 2.71 | 0.68 |
-| Sarvam-2B | 3.01 | 0.53 |
-| GPT-4o | 3.25 | 0.82 |
-| Claude Haiku | 7.73 | 1.56 |
-| GPT-2 (English, baseline) | 22.08 | 4.66 |
+Remaining incomplete items are mainly final paper polish and long-running benchmark jobs rather than core audit plumbing.
 
-A Telugu-specialized 32k BPE tokenizer achieves 2× lower fertility than GPT-4o and fully eliminates the script bias (gap = 0.29). GPT-2's gap of 4.66 represents the worst-case penalty: native Telugu costs 4.66× more tokens than ITRANS romanization of the same text.
+## Latest full run
 
-¹ HuggingFace model: `pulipakav-1/dravidian-gpt2-telugu`; internal identifier: `telugu-gpt2`.
+Primary current run:
+- `experiments/2026-06-30_full_with_llama_english_r1`
 
-Wilcoxon signed-rank tests (one-sided, H₁: native > romanized, n = 1000 matched pairs):
-- GPT-2, Claude: p < 0.0001 — native script significantly costlier
-- Sarvam-2B, Sarvam-105B, dravidian-gpt2-telugu: p = 1.0 — romanized is costlier (gap inverted)
-- GPT-4o: p = 1.0, median gap = −0.73 (marginal romanized advantage)
+Tokenizers present in that run:
+- `openai-gpt4o`
+- `claude`
+- `hf-gpt2`
+- `sarvam-2b`
+- `sarvam-105b`
+- `telugu-gpt2`
+- `xlm-r`
+- `indicbert`
+- `llama-3`
+
+Registers present in that run:
+- `native_formal`
+- `native_informal`
+- `romanized_informal`
+- `english_wiki`
+
+## Main findings from the latest run
+
+Native informal fertility, lower is better:
+
+| Tokenizer | Tokens/word |
+|---|---:|
+| `telugu-gpt2` | 1.60 |
+| `xlm-r` | 2.41 |
+| `sarvam-105b` | 2.71 |
+| `indicbert` | 2.93 |
+| `sarvam-2b` | 3.01 |
+| `openai-gpt4o` | 3.25 |
+| `claude` | 7.73 |
+| `llama-3` | 14.15 |
+| `hf-gpt2` | 22.08 |
+
+Script fairness ratio `native / romanized`, where values above 1 mean native Telugu is costlier:
+
+| Tokenizer | Ratio | Interpretation |
+|---|---:|---|
+| `hf-gpt2` | 4.66 | native Telugu much costlier |
+| `llama-3` | 3.29 | native Telugu much costlier |
+| `claude` | 1.56 | native Telugu costlier |
+| `indicbert` | 0.89 | romanized slightly costlier |
+| `openai-gpt4o` | 0.82 | romanized costlier |
+| `sarvam-105b` | 0.68 | romanized costlier |
+| `xlm-r` | 0.61 | romanized costlier |
+| `sarvam-2b` | 0.53 | romanized costlier |
+| `telugu-gpt2` | 0.29 | romanized much costlier |
+
+Measured Telugu/English multiplier on `native_informal / english_wiki`:
+
+| Tokenizer | Telugu | English | Telugu/English |
+|---|---:|---:|---:|
+| `claude` | 7.73 | 1.46 | 5.31x |
+| `openai-gpt4o` | 3.25 | 1.33 | 2.44x |
+| `llama-3` | 14.15 | 1.35 | 10.49x |
+| `hf-gpt2` | 22.08 | 1.34 | 16.49x |
 
 ## Corpus
 
-| Register | Source | N |
-|---|---|---|
-| `native_formal` | Telugu Wikipedia (`vengi-ai/telugu-wikipedia-clean`) | 789 |
-| `native_informal` | Telugu sentiment + hatespeech datasets (HuggingFace) | 1,000 |
-| `romanized_informal` | ITRANS transliteration of `native_informal` | 1,000 |
+Current local corpus registers:
+- `native_formal`: Telugu Wikipedia-derived formal text
+- `native_informal`: social-media style Telugu text
+- `romanized_informal`: line-aligned ITRANS transliteration of `native_informal`
+- `english_wiki`: English Wikipedia baseline collected with the same sentence-length filter
 
-The romanized corpus is produced by systematic ITRANS transliteration (via `indic-transliteration`) of the native informal corpus, guaranteeing line-level alignment for paired significance testing.
+The current reported romanized corpus is still a controlled ITRANS baseline, not organic Tenglish.
 
 ## Minimal pairs
 
-`data/minimal_pairs/minimal_pairs.tsv` — 62 native-speaker validated Telugu word forms across 9 morphological categories:
+`data/minimal_pairs/minimal_pairs.tsv` contains 62 Telugu forms across 9 morphological categories.
 
-`base_noun` · `case_suffix` · `case_suffix_with_sandhi` · `plural_suffix` · `honorific_suffix` · `compound_with_sandhi` · `borrowed_base` · `borrowed_plus_case_suffix` · `verb_agglutination_chain`
+Summary outputs for the latest run:
+- `experiments/2026-06-30_full_with_llama_english_r1/results/minimal_pair_summary.csv`
+- `experiments/2026-06-30_full_with_llama_english_r1/results/minimal_pair_kruskal_wallis.csv`
 
-## Setup
-
-Requires Python 3.10+.
-
-```bash
-pip install -r requirements.txt
-pip install -e .
-cp .env.example .env          # add ANTHROPIC_API_KEY and OPENAI_API_KEY
-```
-
-## Reproducing the results
+## Running the pipeline
 
 ```bash
-# Collect corpus
-python scripts/collect_data.py --n-samples 1000
+python scripts/collect_data.py --n-samples 1000 --include-english
 python scripts/01_build_corpus.py --config configs/default.yaml
-
-# Run all tokenizers
-python scripts/02_run_tokenizer_audit.py --config configs/default.yaml --experiment-dir experiments/run1
-
-# Morphological breakdown
-python scripts/03_run_minimal_pair_audit.py --config configs/default.yaml --experiment-dir experiments/run1
-
-# Significance tests
-python scripts/06_run_significance_tests.py --config configs/default.yaml --experiment-dir experiments/run1
-
-# Export figures and tables
-python scripts/05_make_figures_and_tables.py --experiment-dir experiments/run1
+python scripts/02_run_tokenizer_audit.py --config configs/default.yaml --run_tag myrun
+python scripts/03_run_minimal_pair_audit.py --config configs/default.yaml --experiment-dir experiments/YYYY-MM-DD_myrun
+python scripts/06_run_significance_tests.py --config configs/default.yaml --experiment-dir experiments/YYYY-MM-DD_myrun
+python scripts/05_make_figures_and_tables.py --experiment-dir experiments/YYYY-MM-DD_myrun
 ```
 
-Results are written to `experiments/run1/results/`, `figures/`, and `tables/`.
+## Benchmarks
 
-Or using make:
+MILU scripts exist for:
+- Claude generative evaluation
+- Telugu GPT-2 log-likelihood evaluation
+- Sarvam-2B log-likelihood evaluation
 
-```bash
-make corpus && make audit EXPERIMENT_DIR=experiments/run1
-```
-
-## Repository layout
-
-```
-configs/          tokenizer sets, pricing, default config
-data/
-  minimal_pairs/  validated TSV of 62 word forms (9 morph types)
-  raw/            collected corpus (gitignored)
-  processed/      pipeline-ready corpus (gitignored)
-experiments/      timestamped run outputs (results gitignored)
-scripts/          numbered pipeline scripts
-telugu_audit/     library: tokenizer adapters, corpus loaders, analysis
-tests/            unit tests
-```
+Long-running full MILU jobs for the latest run are currently writing logs under:
+- `experiments/2026-06-30_full_with_llama_english_r1/results/`
 
 ## Tests
 
 ```bash
-pytest
+python -m pytest
 ```
 
 ## License

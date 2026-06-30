@@ -11,3 +11,4 @@ matplotlib
 pyyaml
 python-dotenv
 pytest
+indic-nlp-library

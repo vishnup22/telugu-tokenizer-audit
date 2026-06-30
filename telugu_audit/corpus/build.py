@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from telugu_audit.corpus.cleaning import clean_lines
-from telugu_audit.corpus.loaders import REGISTERS
+from telugu_audit.corpus.loaders import OPTIONAL_REGISTERS, REGISTERS
 
 
 def build_corpus(
@@ -15,7 +15,12 @@ def build_corpus(
     output_dir.mkdir(parents=True, exist_ok=True)
     line_counts: dict[str, int] = {}
 
-    for register in registers:
+    active_registers = list(registers)
+    for register in OPTIONAL_REGISTERS:
+        if (raw_dir / f"{register}.txt").exists() and register not in active_registers:
+            active_registers.append(register)
+
+    for register in active_registers:
         raw_path = raw_dir / f"{register}.txt"
         if not raw_path.exists():
             fake_path = raw_dir / f"FAKE_{register}.txt"

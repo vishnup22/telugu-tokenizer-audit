@@ -3,27 +3,27 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.stats import rankdata
+
+from telugu_audit.metrics.fertility import word_count
 
 
 def per_sentence_gap(
     native_lines: list[str],
     romanized_lines: list[str],
     count_fn,
+    word_count_fn=word_count,
 ) -> pd.DataFrame:
-    """Per-sentence fertility and gap for matched native/romanized pairs.
-
-    Lines must be parallel — sentence i in native_lines is the same content
-    as sentence i in romanized_lines, just in a different script.
-    """
+    """Per-sentence fertility and gap for matched native/romanized pairs."""
     if len(native_lines) != len(romanized_lines):
         raise ValueError(
             f"Line counts differ: {len(native_lines)} native vs "
-            f"{len(romanized_lines)} romanized — corpus must be matched pairs"
+            f"{len(romanized_lines)} romanized - corpus must be matched pairs"
         )
     rows = []
     for i, (nat, rom) in enumerate(zip(native_lines, romanized_lines)):
-        nat_words = len(nat.split())
-        rom_words = len(rom.split())
+        nat_words = word_count_fn(nat)
+        rom_words = word_count_fn(rom)
         if nat_words == 0 or rom_words == 0:
             continue
         nat_f = count_fn(nat) / nat_words
@@ -40,44 +40,105 @@ def per_sentence_gap(
     return pd.DataFrame(rows)
 
 
+def rank_biserial_correlation(differences: pd.Series | np.ndarray) -> float:
+    diffs = np.asarray(pd.Series(differences).dropna(), dtype=float)
+    diffs = diffs[diffs != 0]
+    if len(diffs) == 0:
+        return 0.0
+
+    ranks = rankdata(np.abs(diffs), method="average")
+    positive_rank_sum = float(ranks[diffs > 0].sum())
+    negative_rank_sum = float(ranks[diffs < 0].sum())
+    total_rank_sum = positive_rank_sum + negative_rank_sum
+    if total_rank_sum == 0:
+        return 0.0
+    return (positive_rank_sum - negative_rank_sum) / total_rank_sum
+
+
+def bootstrap_median_ci(
+    values: pd.Series | np.ndarray,
+    confidence_level: float = 0.95,
+    n_resamples: int = 10000,
+    seed: int = 42,
+) -> tuple[float, float]:
+    sample = np.asarray(pd.Series(values).dropna(), dtype=float)
+    if len(sample) == 0:
+        return float("nan"), float("nan")
+    if np.all(sample == sample[0]):
+        value = float(sample[0])
+        return value, value
+
+    try:
+        rng = np.random.default_rng(seed)
+        result = stats.bootstrap(
+            (sample,),
+            np.median,
+            confidence_level=confidence_level,
+            n_resamples=n_resamples,
+            method="BCa",
+            random_state=rng,
+        )
+        low = float(result.confidence_interval.low)
+        high = float(result.confidence_interval.high)
+        if np.isnan(low) or np.isnan(high):
+            raise ValueError("degenerate BCa interval")
+        return (low, high)
+    except Exception:
+        rng = np.random.default_rng(seed)
+        boot_medians = np.array(
+            [
+                np.median(rng.choice(sample, size=len(sample), replace=True))
+                for _ in range(n_resamples)
+            ]
+        )
+        alpha = (1 - confidence_level) / 2
+        return (
+            float(np.percentile(boot_medians, alpha * 100)),
+            float(np.percentile(boot_medians, (1 - alpha) * 100)),
+        )
+
+
 def test_gap_significance(
     gap_df: pd.DataFrame,
-    n_bootstrap: int = 2000,
+    n_bootstrap: int = 10000,
     seed: int = 42,
 ) -> dict:
-    """Wilcoxon signed-rank test and bootstrap 95% CI on the median fertility gap.
-
-    Non-parametric because per-sentence fertility is right-skewed.
-    H1: native-script fertility > romanized fertility (one-sided).
-    Effect size is the common-language statistic: fraction of pairs where
-    native costs more tokens per word than romanized.
-    """
+    """Two-sided Wilcoxon test and BCa bootstrap CI on the median fertility gap."""
     gaps = gap_df["fertility_gap"].dropna()
     if len(gaps) < 10:
         raise ValueError(
             f"Too few sentence pairs for a reliable test "
-            f"(n={len(gaps)}, need ≥ 10)"
+            f"(n={len(gaps)}, need >= 10)"
         )
 
-    stat, p_value = stats.wilcoxon(gaps, alternative="greater")
+    stat, p_value = stats.wilcoxon(
+        gaps,
+        alternative="two-sided",
+        zero_method="wilcox",
+        method="auto",
+    )
 
     effect_cl = float((gaps > 0).mean())
-
-    rng = np.random.default_rng(seed)
-    boot_medians = np.array(
-        [
-            np.median(rng.choice(gaps.values, size=len(gaps), replace=True))
-            for _ in range(n_bootstrap)
-        ]
+    ci_low, ci_high = bootstrap_median_ci(gaps, n_resamples=n_bootstrap, seed=seed)
+    median_gap = float(gaps.median())
+    median_direction = (
+        "native_costlier"
+        if median_gap > 0
+        else "romanized_costlier" if median_gap < 0 else "neutral"
     )
+    nonzero_gaps = gaps[gaps != 0]
 
     return {
         "n_pairs": int(len(gaps)),
-        "median_gap": float(gaps.median()),
+        "n_nonzero_pairs": int(len(nonzero_gaps)),
+        "median_gap": median_gap,
         "mean_gap": float(gaps.mean()),
+        "median_direction": median_direction,
         "pct_pairs_native_costlier": round(effect_cl * 100, 1),
         "wilcoxon_statistic": float(stat),
         "p_value": float(p_value),
-        "bootstrap_ci_95_low": float(np.percentile(boot_medians, 2.5)),
-        "bootstrap_ci_95_high": float(np.percentile(boot_medians, 97.5)),
+        "rank_biserial_correlation": float(rank_biserial_correlation(gaps)),
+        "bootstrap_ci_95_low": ci_low,
+        "bootstrap_ci_95_high": ci_high,
     }
+

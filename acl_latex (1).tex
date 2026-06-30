@@ -94,27 +94,26 @@
 \maketitle
 \begin{abstract}
 Telugu has more than 96 million speakers but remains low resource in
-LLM development, underrepresented in pretraining data and absent
-from tokenizer design. This creates a \textit{token tax}: native
-script users pay more per API call and get a smaller context window
-than English speakers for the same content. I audit six tokenizers
-across three corpus registers, native formal, native informal, and
-romanized informal Telugu, 2,789 sentences, plus 62 native speaker
-validated minimal pairs across nine agglutinative morphological
-categories. Claude Haiku~4.5 needs 7.73 tokens per word on native
-Telugu; Anon-Indic-GPT2 needs only 1.60, a 4.8$\times$ gap from
-training data. The legacy GPT-2 tokenizer costs 4.66$\times$ more for
-native script than romanized text (Wilcoxon signed rank,
-$p < 10^{-165}$, 100\% of pairs); Claude Haiku~4.5 carries a smaller
-1.56$\times$ penalty (99.9\%). Models trained on Indic data reverse
-this bias. At current prices, Telugu speakers pay roughly
-7.7$\times$ more than English speakers for equivalent text, with a
-context window 7.7$\times$ smaller. On MILU
-\citep{verma-etal-2024-milu} (7,304 Telugu MCQ questions), efficiency
-and accuracy do not co-vary: GPT-4o scores 72.53\% (5-shot, from
-prior work) despite a moderate fertility penalty, while
-Anon-Indic-GPT2, the most efficient tokenizer, scores 26.97\%,
-near chance. The token tax reflects pricing, not capability.
+LLM development, underrepresented in pretraining data and largely
+absent from tokenizer design. This creates a \textit{token tax}:
+native-script users pay more per API call and get a smaller effective
+context window for the same content. I audit nine tokenizers across
+four registers, native formal, native informal, a controlled
+ITRANS-romanized informal corpus, and an English Wikipedia baseline,
+totaling 3,789 sentences, plus 62 minimal pairs across nine
+agglutinative morphological categories checked by one native speaker.
+On native informal Telugu, fertility ranges from 1.60 tokens per word
+for Anon-Indic-GPT2 to 22.08 for legacy GPT-2, a 13.8$\times$ gap.
+At Claude Haiku~4.5, native informal Telugu measures 7.73 tokens per
+word versus 1.46 on the directly measured English baseline, a
+5.31$\times$ cost multiplier. On the controlled romanized corpus,
+general-purpose tokenizers penalize native Telugu script, while
+Indic-trained tokenizers reverse that penalty. On MILU
+\citep{verma-etal-2024-milu} (7,304 Telugu MCQ questions), tokenizer
+efficiency and downstream accuracy are consistent with being
+independently determined, though evaluation protocols differ across
+models. The results place the token tax at the tokenizer and pricing
+layer rather than the model-capability layer.
 \end{abstract}
 
 \section{Introduction}
@@ -128,8 +127,8 @@ they routinely over-segment the morphologically rich scripts of low
 resource languages, producing far more tokens per word. That
 difference is the hidden \textit{token tax} those users pay.
 
-Telugu makes this problem concrete. Spoken by over 96 million people
-across India and its diaspora \citep{census2011}, Telugu is a
+Telugu makes this problem concrete. Spoken by over 96 million people according to the most recent
+available census data \citep{census2011}, Telugu is a
 Dravidian language with agglutinative morphology: a single word can
 encode tense, aspect, number, case, and honorificity all at once
 through chains of suffixes. These are exactly the kind of surface
@@ -152,11 +151,11 @@ writing in their own script than for romanizing it, has not really
 been studied on its own terms.
 
 This paper is a focused empirical audit aimed at that gap. I
-evaluate six tokenizers, general purpose commercial APIs, open
-source baselines built for English, and tokenizers built specifically
-for Indic languages, across three corpus registers and a
-morphologically annotated minimal pair dataset. Four questions
-guide the analysis:
+evaluate nine tokenizers, general purpose commercial APIs, open
+source baselines built for English, multilingual tokenizers, and
+tokenizers built specifically for Indic languages, across four corpus
+registers and a morphologically annotated minimal pair dataset. Four
+questions guide the analysis:
 \begin{itemize}
     \item \textbf{RQ1} (Fertility): How much does tokenizer fertility
     vary across tokenizers and corpus registers for Telugu?
@@ -166,18 +165,19 @@ guide the analysis:
     \item \textbf{RQ3} (Morphology): Which agglutinative morphological
     structures incur the greatest token-count penalty, and does the
     penalty vary systematically across tokenizer tiers?
-    \item \textbf{RQ4} (Decoupling): Does lower fertility predict
-    higher downstream task accuracy, or are tokenizer efficiency and
-    model capability independent of each other?
+    \item \textbf{RQ4} (Independence): Does tokenizer efficiency
+    co-vary with downstream task accuracy in this study, or do
+    efficiency and accuracy reflect different design dimensions?
 \end{itemize}
 My contributions are:
 \begin{itemize}
-    \item A fertility audit of six tokenizers across 2,789 sentences
-    in three Telugu registers, including per sentence Wilcoxon
-    signed rank tests and bootstrap confidence intervals on script
-    fairness gaps (\S\ref{sec:results-fertility}, \S\ref{sec:results-gap});
+    \item A fertility audit of nine tokenizers across 3,789 sentences
+    in four registers, including a direct English baseline, per-sentence
+    Wilcoxon signed-rank tests, rank-biserial effect sizes, and bootstrap
+    confidence intervals on script fairness gaps (\S\ref{sec:results-fertility}, \S\ref{sec:results-gap});
     \item A morphological breakdown built from 62 minimal pairs
-    validated by native speakers, spanning nine agglutinative
+    checked by one native speaker of Coastal Andhra Telugu, spanning
+    nine agglutinative
     categories, that identifies which linguistic structures take the
     biggest penalty (\S\ref{sec:results-minimal});
     \item A zero shot MILU evaluation of Claude Haiku~4.5 across
@@ -277,21 +277,28 @@ corpus using systematic ITRANS transliteration via the
 \texttt{indic-transliteration} library
 \citep{kunchukuttan-2020-indicnlp}. Each romanized sentence lines up
 exactly with its native script counterpart, which lets me run
-paired significance tests sentence by sentence. ITRANS is the
-romanization scheme most commonly used for informal Telugu online.
+paired significance tests sentence by sentence. Because the
+romanized corpus is ITRANS-generated rather than organic Tenglish, I
+treat it as a controlled worst-case baseline for romanized Telugu
+input rather than as a direct sample of everyday online usage.
+
+\paragraph{English baseline.}
+I additionally sample 1,000 sentences from English Wikipedia using
+the same sentence-length filter used for the Telugu corpora. This
+register is not paired with the Telugu data, but it provides a direct
+English fertility baseline for each tokenizer.
 
 \paragraph{Preprocessing.}
 Every register goes through the same cleaning pipeline: regex based
-removal of personally identifiable information, punctuation stripping
-to prevent artificial token inflation, deduplication on normalized
-surface form, and length filtering. The final corpus has
-2,789 sentences in total: 789 native formal, 1,000 native informal,
-and 1,000 romanized informal.
+removal of personally identifiable information, deduplication on
+normalized surface form, and length filtering. The final corpus has
+3,789 sentences in total: 789 native formal, 1,000 native informal,
+1,000 romanized informal, and 1,000 English Wikipedia sentences.
 
 \subsection{Tokenizers}
 
-I evaluate six tokenizers across three tiers of Indic language
-coverage; Table~\ref{tab:tokenizers} summarizes them.
+I evaluate nine tokenizers across four tiers of Telugu coverage;
+Table~\ref{tab:tokenizers} summarizes them.
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -299,12 +306,15 @@ coverage; Table~\ref{tab:tokenizers} summarizes them.
 \hline
 \textbf{Tokenizer} & \textbf{Backend} & \textbf{Vocab} \\
 \hline
-GPT-4o                & tiktoken \texttt{o200k\_base}  & 200k \\
-Claude Haiku~4.5      & Anthropic API                  & n/d\textsuperscript{$\dagger$}  \\
-GPT-2 (legacy)        & HuggingFace BPE                & 50k  \\
-Sarvam-2B             & HuggingFace SentencePiece      & 64k  \\
-Sarvam-105B           & HuggingFace SentencePiece      & 64k  \\
-Anon-Indic-GPT2 & SentencePiece                  & 32k  \\
+GPT-4o                & tiktoken \texttt{o200k\_base}       & 200k \\
+Claude Haiku~4.5      & Anthropic API                       & n/d\textsuperscript{$\dagger$} \\
+GPT-2 (legacy)        & HuggingFace BPE                     & 50k \\
+XLM-R                 & HuggingFace SentencePiece           & 250k \\
+IndicBERT             & HuggingFace WordPiece               & 200k \\
+Llama~3               & HuggingFace BPE                     & 128k \\
+Sarvam-2B             & HuggingFace SentencePiece           & 64k \\
+Sarvam-105B           & HuggingFace SentencePiece           & 64k \\
+Anon-Indic-GPT2       & SentencePiece                       & 32k \\
 \hline
 \end{tabular}%
 }
@@ -312,6 +322,12 @@ Anon-Indic-GPT2 & SentencePiece                  & 32k  \\
          \textsuperscript{$\dagger$}Not publicly disclosed by Anthropic.}
 \label{tab:tokenizers}
 \end{table}
+
+\paragraph{XLM-R, IndicBERT, and Llama 3.}
+I additionally load the tokenizer backends for XLM-R, IndicBERT, and
+Llama~3 through \texttt{transformers.AutoTokenizer}. These add one
+multilingual SentencePiece baseline, one Indic-pretrained encoder
+baseline, and one modern frontier tokenizer to the comparison set.
 \paragraph{GPT-4o.}
 I get token counts from the \texttt{tiktoken} library using the
 \texttt{o200k\_base} encoding, the same tokenizer that GPT-4o uses.
@@ -336,7 +352,7 @@ high.
 \paragraph{Sarvam-2B and Sarvam-105B.}
 I load both Sarvam models \citep{sarvam-2024} via
 \texttt{AutoTokenizer.from\_pretrained} using
-\texttt{sarvamai/sarvam-1-v0.5} and \texttt{sarvamai/sarvam-105b}
+\texttt{sarvamai/sarvam-2b-v0.5} and \texttt{sarvamai/sarvam-105b}
 respectively. Both were trained on large Indic corpora and use a
 SentencePiece vocabulary of 64k that covers all 22 scheduled Indian
 languages.
@@ -359,9 +375,11 @@ tokenizer $t$ on register $R$ as:
     \label{eq:fertility}
 \end{equation}
 
-Here $\mathrm{words}(s)$ is the word count of sentence $s$, counted
-by splitting on white space. Lower fertility means more efficient
-tokenization.
+Here $\mathrm{words}(s)$ is the word count of sentence $s$. I compute
+this both by white-space splitting and with IndicNLP tokenization as
+a sensitivity check; the main text reports the white-space version
+for comparability, with the alternative counts released alongside the
+results. Lower fertility means more efficient tokenization.
 
 \paragraph{Script fairness gap.}
 I define the script fairness gap for tokenizer $t$ as the ratio of
@@ -383,26 +401,25 @@ makes this ratio a direct measure of script level tokenizer bias.
 
 \paragraph{Significance testing.}
 To test whether the script fairness gap is statistically
-significant, I run a one-sided Wilcoxon signed rank test
-\citep{wilcoxon-1945} ($H_1$: native fertility $>$ romanized
-fertility) on the per sentence fertility gaps
+significant, I run a two-sided Wilcoxon signed rank test
+\citep{wilcoxon-1945} on the per sentence fertility gaps
 $\delta_i = \mathcal{F}(t, s_i^{\mathrm{nat}})
 - \mathcal{F}(t, s_i^{\mathrm{rom}})$ across the 1,000 matched
-sentence pairs ($n = 1{,}000$). I also compute 95\% bootstrap
-confidence intervals on the median gap, using 1,000 resamples with
-replacement.
+sentence pairs ($n = 1{,}000$). I report direction separately from
+the sign of the median gap and include rank-biserial correlation as
+the primary effect size. I also compute 95\% BCa bootstrap
+confidence intervals on the median gap using 10,000 resamples.
 
 \subsection{Minimal Pair Analysis}
 
 To find out which morphological structures take the biggest
 fertility hit, I build a minimal pair dataset of 62 Telugu word
-forms validated by native speakers, spanning nine agglutinative
-categories: \textit{base\_noun}, \textit{case\_suffix},
+forms checked by one native speaker of Coastal Andhra Telugu,
+spanning nine agglutinative categories: \textit{base\_noun}, \textit{case\_suffix},
 \textit{case\_suffix\_with\_sandhi}, \textit{plural\_suffix},
 \textit{honorific\_suffix}, \textit{compound\_with\_sandhi},
 \textit{borrowed\_base}, \textit{borrowed\_plus\_case\_suffix}, and
-\textit{verb\_agglutination\_chain}. I tokenize each word with all
-six tokenizers and report the mean and median token count per
+\textit{verb\_agglutination\_chain}. I tokenize each word with the historical core six tokenizers and report the mean and median token count per
 category. I release the dataset with my repository so others can
 build on it.
 
@@ -464,41 +481,45 @@ cite the MILU paper's 5 shot score of 28.57\% for reference only.
 \label{sec:results-fertility}
 
 Table~\ref{tab:fertility} shows fertility $\mathcal{F}(t, R)$ for
-each of the six tokenizers across the three corpus registers.
+each tokenizer across the four corpus registers.
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Tokenizer} & \textbf{Native Formal} &
-\textbf{Native Informal} & \textbf{Romanized Informal} \\
+\textbf{Tokenizer} & \textbf{Native Formal} & \textbf{Native Informal} & \textbf{Romanized Informal} & \textbf{English} \\
 \midrule
-GPT-4o                &  3.28 &  3.25 &  3.98 \\
-Claude Haiku~4.5      &  6.91 &  7.73 &  4.95 \\
-GPT-2 (legacy)        & 19.99 & 22.08 &  4.74 \\
-Sarvam-2B             &  2.52 &  3.01 &  5.67 \\
-Sarvam-105B           &  2.68 &  2.71 &  4.01 \\
-Anon-Indic-GPT2 & \textbf{1.68} & \textbf{1.60} &  5.49 \\
+GPT-4o                &  3.28 &  3.25 &  3.98 & 1.33 \\
+Claude Haiku~4.5      &  6.91 &  7.73 &  4.95 & 1.46 \\
+GPT-2 (legacy)        & 19.99 & 22.08 &  4.74 & 1.34 \\
+XLM-R                 &  2.50 &  2.41 &  3.93 & 1.52 \\
+IndicBERT             &  2.86 &  2.93 &  3.31 & 1.52 \\
+Llama~3               & 12.96 & 14.15 &  4.30 & 1.35 \\
+Sarvam-2B             &  2.52 &  3.01 &  5.67 & 1.60 \\
+Sarvam-105B           &  2.68 &  2.71 &  4.01 & 1.35 \\
+Anon-Indic-GPT2       & \textbf{1.68} & \textbf{1.60} &  5.49 & 2.65 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Fertility (tokens/word) by tokenizer and register. Bold = best.}
+\caption{Fertility (tokens/word) by tokenizer and register. Bold = best on the Telugu registers.}
 \label{tab:fertility}
 \end{table}
-Fertility varies a lot across tokenizers. On the native informal
+Fertility varies sharply across tokenizers. On the native informal
 register, which is the closest proxy I have for everyday Telugu
 usage, Anon-Indic-GPT2 reaches the lowest fertility at 1.60
 tokens per word, while GPT-2 reaches 22.08. That is a 13.8$\times$
 gap between the most and least efficient tokenizers on the same
-text. Claude Haiku~4.5 produces 7.73 tokens per word, 4.8$\times$
-higher than Anon-Indic-GPT2.
+text. Claude Haiku~4.5 produces 7.73 tokens per word, while Llama~3
+reaches 14.15, much closer to the legacy English-centric baselines
+than to the Indic-specialized tokenizers.
 
-The Sarvam models, both trained on Indic data, reach competitive
-fertility (2.71 to 3.01) on native informal text, close to GPT-4o's
-3.25, even though they target a broader vocabulary covering 22
-Indic languages. This suggests that deliberate multilingual
-tokenizer design can close most of the fertility gap without giving
-up cross lingual coverage.
+The Sarvam models, XLM-R, and IndicBERT all reach native informal
+fertility between 2.41 and 3.01, close to GPT-4o's 3.25. A direct
+English baseline also shows that Claude's native informal Telugu
+fertility is 5.31$\times$ its English fertility (7.73 versus 1.46),
+while GPT-4o's multiplier is 2.44$\times$ (3.25 versus 1.33). This
+suggests that deliberate multilingual tokenizer design can close
+most of the fertility gap without giving up cross-lingual coverage.
 
 \paragraph{Token length distribution.}
 The token length distribution explains where this gap comes from
@@ -516,57 +537,53 @@ morphemes long.
 \label{sec:results-gap}
 
 Table~\ref{tab:gap} reports the script fairness gap $\mathcal{G}(t)$
-together with Wilcoxon signed rank test results and 95\% bootstrap
-confidence intervals on the median per sentence gap.
+together with the median per-sentence gap, BCa bootstrap confidence
+intervals, rank-biserial effect size, and two-sided Wilcoxon result.
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
-\textbf{Tokenizer} & $\mathcal{G}(t)$ &
-\textbf{Med.\ $\delta$} & \textbf{95\% CI} & \textbf{$p$} \\
+\textbf{Tokenizer} & $\mathcal{G}(t)$ & \textbf{Med.\ $\delta$} & \textbf{95\% CI} & \textbf{$r_{rb}$} & \textbf{$p$} \\
 \midrule
-GPT-4o                & 0.82 & $-$0.73 & [$-$0.76,\;$-$0.69] & 1.0 \\
-Claude Haiku~4.5      & 1.56 & $+$2.75 & [$+$2.71,\;$+$2.81] & $<\!10^{-165}$ \\
-GPT-2 (legacy)        & \textbf{4.66} & $+$17.22 & [$+$17.0,\;$+$17.4] & $<\!10^{-165}$ \\
-Sarvam-2B             & 0.53 & $-$2.65 & [$-$2.70,\;$-$2.58] & 1.0 \\
-Sarvam-105B           & 0.68 & $-$1.30 & [$-$1.33,\;$-$1.25] & 1.0 \\
-Anon-Indic-GPT2 & \textbf{0.29} & $-$3.88 & [$-$4.00,\;$-$3.83] & 1.0 \\
+GPT-4o                & 0.82 & $-$0.73 & [$-$0.76,\;$-$0.68] & $-$0.91 & $<10^{-132}$ \\
+Claude Haiku~4.5      & 1.56 & $+$2.75 & [$+$2.71,\;$+$2.81] & 1.00 & $<10^{-164}$ \\
+GPT-2 (legacy)        & 4.66 & $+$17.22 & [$+$17.00,\;$+$17.42] & 1.00 & $<10^{-164}$ \\
+XLM-R                 & 0.61 & $-$1.55 & [$-$1.60,\;$-$1.50] & $-$1.00 & $<10^{-162}$ \\
+IndicBERT             & 0.89 & $-$0.40 & [$-$0.40,\;$-$0.36] & $-$0.93 & $<10^{-129}$ \\
+Llama~3               & 3.29 & $+$9.79 & [$+$9.64,\;$+$9.92] & 1.00 & $<10^{-164}$ \\
+Sarvam-2B             & 0.53 & $-$2.65 & [$-$2.70,\;$-$2.58] & $-$1.00 & $<10^{-164}$ \\
+Sarvam-105B           & 0.68 & $-$1.30 & [$-$1.33,\;$-$1.25] & $-$1.00 & $<10^{-162}$ \\
+Anon-Indic-GPT2       & 0.29 & $-$3.88 & [$-$4.00,\;$-$3.83] & $-$1.00 & $<10^{-164}$ \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Script fairness gap $\mathcal{G}(t)$, median $\delta$,
-         95\% CI, and Wilcoxon $p$ ($n=1{,}000$).
-         $\mathcal{G}(t){>}1$: native costlier;
-         $\mathcal{G}(t){<}1$: romanized costlier.}
+\caption{Script fairness gap $\mathcal{G}(t)$, median $\delta$, 95\% CI,
+         rank-biserial effect size, and two-sided Wilcoxon $p$ ($n=1{,}000$).
+         $\mathcal{G}(t){>}1$: native costlier; $\mathcal{G}(t){<}1$: romanized costlier.}
 \label{tab:gap}
 \end{table}
-The results split cleanly along tokenizer origin. Western, general
-purpose tokenizers penalize native Telugu script: the legacy GPT-2
-tokenizer imposes a 4.66$\times$ penalty, with native script
-costlier in 100\% of matched pairs ($p < 10^{-165}$), and Claude
-Haiku~4.5 imposes a 1.56$\times$ penalty (99.9\% of pairs,
-$p < 10^{-165}$). On these tokenizers, a Telugu speaker who writes
-in their own script pays substantially more tokens than one who
-romanizes the same content, which means more money and more latency
-for no difference in meaning.
+The results still split cleanly along tokenizer origin. Western,
+general-purpose tokenizers penalize native Telugu script most
+strongly: GPT-2 imposes a 4.66$\times$ penalty, Llama~3 a 3.29$\times$
+penalty, and Claude Haiku~4.5 a 1.56$\times$ penalty. In all three
+cases the median gap and rank-biserial effect size point in the same
+direction.
 
-Tokenizers trained on Indic data flip this bias the other way
-entirely. Sarvam-2B ($\mathcal{G} = 0.53$), Sarvam-105B
-($\mathcal{G} = 0.68$), and Anon-Indic-GPT2 ($\mathcal{G} =
-0.29$) all make native script cheaper than romanized input, with
-native script costlier in only 0.0\% to 0.2\% of pairs.
-Anon-Indic-GPT2 shows the strongest effect: native Telugu
-script costs 3.4$\times$ less than its romanized equivalent, the
-largest native script advantage I observed. GPT-4o sits in the
-middle ($\mathcal{G} = 0.82$), with a small romanized advantage that
-is not statistically significant ($p=1.0$).
+Tokenizers trained on Indic data flip this bias the other way.
+Sarvam-2B ($\mathcal{G}=0.53$), Sarvam-105B ($\mathcal{G}=0.68$),
+IndicBERT ($\mathcal{G}=0.89$), and Anon-Indic-GPT2
+($\mathcal{G}=0.29$) all make native script cheaper than the
+ITRANS-transliterated baseline, while XLM-R also favors native script
+($\mathcal{G}=0.61$). GPT-4o sits near neutral at
+$\mathcal{G}=0.82$, with a much smaller effect than the English-centric
+baselines.
 
 \subsection{RQ3: Morphological Breakdown}
 \label{sec:results-minimal}
 
 Table~\ref{tab:minimal} gives mean tokens per word for each
-morphological category, across all six tokenizers.
+morphological category, across the historical core six tokenizers.
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -614,7 +631,7 @@ to true morpheme level segmentation throughout. It tokenizes every
 That points to a vocabulary large enough to store common Telugu
 stems directly, rather than splitting them.
 
-\subsection{RQ4: Benchmark Accuracy and the Decoupling Finding}
+\subsection{RQ4: Tokenizer Efficiency and Downstream Accuracy}
 \label{sec:results-milu}
 
 Table~\ref{tab:milu} reports MILU Telugu test accuracy for the
@@ -645,19 +662,22 @@ Chance baseline       & ---                 & ---  & 25.00\% \\
          Evaluation protocols differ across models (see \S\ref{sec:benchmark}).}
 \label{tab:milu}
 \end{table}
-These numbers are consistent with tokenizer fertility and downstream
-accuracy being decoupled, though this conclusion should be read
-cautiously: the three models use incompatible evaluation protocols
-(5-shot paper-reported vs.\ zero-shot generative vs.\ log-likelihood),
-which prevents direct comparison. Within those constraints, the
-pattern holds across all three models in the same direction. GPT-4o gets the highest accuracy, 72.53\%, with only
-a moderate fertility of 3.25. Claude Haiku~4.5 scores 60.78\%
-despite having the worst fertility among the instruction tuned
-models I tested (7.73). Anon-Indic-GPT2 has the best
-fertility in the study (1.60) and still scores near chance, 26.97\%
-against a 25.0\% baseline. That is not a tokenizer problem: it is a
-110M parameter base language model with no instruction tuning, too
-small for the task regardless of how cheaply it tokenizes.
+These numbers are consistent with tokenizer efficiency and
+downstream accuracy being independently determined, though this
+conclusion should be read cautiously: the three models use
+incompatible evaluation protocols (5-shot paper-reported vs.\ zero-shot
+generative vs.\ log-likelihood), which prevents direct numerical
+comparison. Within those constraints, the pattern still shows that
+high capability does not require the most efficient tokenizer, and
+the most efficient tokenizer does not imply strong downstream task
+performance. GPT-4o gets the highest accuracy, 72.53\%, with a
+moderate fertility of 3.25. Claude Haiku~4.5 scores 60.78\% despite
+having the worst fertility among the instruction-tuned models I
+tested (7.73). Anon-Indic-GPT2 has the best fertility in the study
+(1.60) and still scores near chance, 26.97\% against a 25.0\%
+baseline. That is not a tokenizer problem: it is a 110M-parameter
+base language model with no instruction tuning, too small for the
+task regardless of how cheaply it tokenizes.
 
 The pattern has a simple explanation. Tokenizer efficiency and model
 capability come from separate design choices, so there is no reason
@@ -665,27 +685,23 @@ to expect one to track the other. A model can be trained on large
 amounts of Indic data and end up with an efficient tokenizer while
 still being a small base model. A frontier model can do the
 opposite: understand Telugu well while carrying a poorly calibrated
-tokenizer. I read the token tax as a pricing problem sitting at the
-tokenizer level, separate from whatever the underlying model can
-do, and it needs to be fixed there rather than waiting on bigger
-models.
+tokenizer. I therefore read the token tax as a pricing problem
+sitting at the tokenizer level, separate from whatever the
+underlying model can do, and something that has to be fixed there
+rather than waiting on bigger models.
 
 \paragraph{Cost and context implications.}
 At Claude Haiku~4.5's pricing of \$0.0008 per 1,000 input tokens, a
 fertility of 7.73 tokens per word on native Telugu means processing
-1,000 Telugu words costs about \$0.0062, roughly 7.7$\times$ more
-than the same amount of English text at close to 1.0 token per
-word.\footnote{English fertility of $\approx$1.0 tokens/word is a
-standard approximation from prior work
-\citep{petrov-etal-2023-language}; I do not measure it directly in
-this study.} The 200,000 token context window works out to about 25,873
-native Telugu words, against roughly 200,000 English words: the
-effective window shrinks by the same 7.7$\times$. GPT-4o's fertility
-of 3.25 translates to a 3.25$\times$ penalty in both cost and
-context. None of this is incidental; it adds another layer of
-disadvantage on top of everything else that comes with speaking a
-low resource language with little representation in model training
-data.
+1,000 Telugu words costs about \$0.0062 in input charges, while the
+directly measured English baseline of 1.46 tokens per word implies
+only about \$0.0012 for the same word count. That is a measured
+5.31$\times$ multiplier on Claude for native informal Telugu versus
+English. GPT-4o's multiplier is smaller but still substantial at
+2.44$\times$ (3.25 versus 1.33). None of this is incidental; it adds
+another layer of disadvantage on top of everything else that comes
+with speaking a low-resource language with little representation in
+model training data.
 
 
 
@@ -704,16 +720,16 @@ turns into more money, more latency, and less usable context.
 
 How big this tax is depends entirely on which tokenizer the
 speaker's application happens to use. At Claude Haiku~4.5 pricing, a
-fertility of 7.73 tokens per word on native Telugu means a
-7.7$\times$ cost premium over English, which sits close to 1.0
-token per word. At GPT-4o's 3.25 tokens per word, the premium drops
-to 3.25$\times$. These multipliers stack across every interaction: a
-500 word Telugu message that costs \$0.003 in English costs \$0.024
-on Claude Haiku~4.5, and the effective context window shrinks by the
-same factor. For someone paying for AI access out of a prepaid plan,
-which is how most people in India get online, this is not an
-abstract number. It is a hard ceiling on how much of the model they
-can actually use per rupee.
+fertility of 7.73 tokens per word on native Telugu means 1,000 Telugu
+words cost about \$0.0062 in input charges alone, while the directly
+measured English baseline for the same tokenizer costs about \$0.0012.
+At GPT-4o, the comparable multiplier is 2.44$\times$ rather than
+Claude's 5.31$\times$. These costs stack across every interaction,
+and the same token inflation also shrinks the amount of Telugu text
+that fits into a fixed context window. For someone paying for AI
+access out of a prepaid plan, which is how many people in India get
+online, this is not an abstract number. It is a hard ceiling on how
+much of the model they can actually use per rupee.
 
 The token tax also lands on speakers who already face the biggest
 barriers to AI access. Telugu has among the lowest per capita LLM
@@ -762,7 +778,7 @@ in there to avoid falling back to bytes. That is a useful result: it
 means tokenizer fairness does not require giving up cross lingual
 coverage, as long as the vocabulary budget is big enough.
 
-\subsection{Decoupling Fertility from Capability}
+\subsection{Tokenizer Efficiency and Capability Context}
 
 The MILU results in Table~\ref{tab:milu} are consistent with
 tokenizer efficiency and downstream accuracy not moving together,
@@ -775,7 +791,7 @@ Anon-Indic-GPT2 has the best fertility of all, 1.60, and still
 scores near chance at 26.97\%, which fits its profile as a 110M
 parameter base language model with no instruction tuning.
 
-This decoupling matters for how the field should prioritize its
+This independence matters for how the field should prioritize its
 work. A better tokenizer will not make a model understand Telugu
 better, and a strong Telugu benchmark score does not mean Telugu
 speakers are paying a fair price. Tokenizer fairness has to be its
@@ -798,12 +814,13 @@ fix both problems at once.
 My romanized corpus relies only on ITRANS transliteration. Other
 romanization conventions, ISO~15919, or the informal phonetic
 spellings common on social media, might produce different fertility
-numbers. I treat ITRANS as a reasonable worst case for general
-purpose tokenizers, but the exact size of the gap will shift with
+numbers. I therefore treat ITRANS as a controlled worst-case
+baseline for romanized Telugu rather than as a direct sample of
+organic Tenglish, and the exact size of the gap will shift with
 romanization style.
 
 \paragraph{Corpus size and domain coverage.}
-My corpus of 2,789 sentences is large enough for significance
+My corpus of 3,789 sentences is large enough for significance
 testing but still small next to production scale corpora. The
 native formal register comes only from Wikipedia, which skews
 toward formal vocabulary and may not capture colloquial
@@ -826,16 +843,17 @@ with the log likelihood method instead of generative MCQ.
 
 \paragraph{Minimal pair validation.}
 The 62 minimal pairs were built using Telugu morphological grammars
-and checked by one native speaker. A larger validation effort across
-more speakers and dialects would make the morphological analysis
-stronger.
+and checked by one native speaker of Coastal Andhra Telugu. A larger
+validation effort across Rayalaseema and Telangana speakers, with
+formal inter-annotator agreement, would make the morphological
+analysis stronger.
 
 
 \section{Conclusion}
 \label{sec:conclusion}
 This paper presented a systematic empirical audit of tokenizer
-fertility and script fairness for Telugu, covering six LLM
-tokenizers and three corpus registers. My findings answer all
+fertility and script fairness for Telugu, covering nine LLM
+tokenizers and four corpus registers. My findings answer all
 four research questions in turn.
 
 Fertility varies by up to 13.8$\times$ across tokenizers on the same
@@ -843,19 +861,20 @@ native Telugu text: Anon-Indic-GPT2 sits at one extreme (1.60
 tokens/word) and GPT-2 at the other (22.08 tokens/word) (RQ1). The
 script fairness gap is statistically significant, and which way it
 runs depends on the tokenizer's origin. General purpose Western
-tokenizers impose a statistically significant native script penalty
-between 1.56$\times$ and 4.66$\times$ ($p < 10^{-165}$,
-$n = 1{,}000$). Tokenizers trained on Indic data invert that bias:
-native script ends up cheaper than romanized input ($\mathcal{G}$
-between 0.29 and 0.68), confirmed by Wilcoxon tests in the opposing
-direction ($p < 10^{-165}$, $n = 1{,}000$) (RQ2). The penalty also follows morphological
+tokenizers impose a native-script penalty between 1.56$\times$ and
+4.66$\times$, while tokenizers trained on Indic data invert that
+bias: native script ends up cheaper than romanized input
+($\mathcal{G}$ between 0.29 and 0.68) (RQ2). The penalty also
+follows morphological
 structure: honorific suffixes and verb agglutination chains take
 the highest token counts of any category, the same constructions
-that define Telugu as an agglutinative language (RQ3). Tokenizer fertility and downstream MILU accuracy do not co-vary
-in this study: the model with the best tokenizer scores near
-chance, 26.97\%, while the model with the worst tokenizer among
-instruction-tuned models scores 60.78\%. That gap is the clearest evidence in the paper that
-the token tax is about pricing, not capability (RQ4).
+that define Telugu as an agglutinative language (RQ3). Tokenizer fertility and downstream MILU accuracy are consistent
+with being independently determined in this study: the model with
+the best tokenizer scores near chance, 26.97\%, while the model
+with the worst tokenizer among instruction-tuned models scores
+60.78\%. That gap is the clearest evidence in the paper that the
+token tax operates at the pricing layer rather than the
+model-capability layer (RQ4).
 
 These findings point to two concrete recommendations for tokenizer
 designers. First, Telugu and other Dravidian subword units belong
@@ -863,21 +882,20 @@ in the vocabulary itself, not left for byte level fallback to
 handle. Sarvam shows this is possible at a 64k vocabulary size
 without giving up cross lingual coverage across 22 Indic languages.
 Second, the script fairness gap should become a standard metric
-reported alongside fertility for multilingual tokenizers
+reported alongside fertility for multilingual tokenizer evaluation cards
 \citep{rust-etal-2021-how, petrov-etal-2023-language}, since the two
 numbers can diverge substantially, as my results show.
 
 The token tax comes down to a structural inequity in how LLM access
 is priced and scoped. Telugu has 96 million speakers, most of whom
-access AI services on limited budgets, and they pay more per query,
-get less context per rupee, and remain underrepresented in both
-tokenizer training data and model pretraining corpora
-\citep{census2011, doddapaneni-etal-2023-towards}. Closing that gap
-takes deliberate engineering choices at the tokenizer level, choices
-that do not depend on model scale at all. I release my corpus,
-minimal pair dataset, evaluation scripts, and every other
-experimental artifact, so other researchers can build on this work
-for Telugu and for other morphologically rich, low resource
+access AI services on limited budgets, and the directly measured
+English comparison in this study shows that the same provider can
+charge several times more tokens for Telugu than for English.
+Closing that gap takes deliberate engineering choices at the
+tokenizer level, choices that do not depend on model scale at all.
+I release my corpus, minimal pair dataset, evaluation scripts, and
+every other experimental artifact, so other researchers can build on
+this work for Telugu and for other morphologically rich, low-resource
 languages.
 
 % Bibliography entries for the entire Anthology, followed by custom entries

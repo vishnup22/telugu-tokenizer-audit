@@ -24,6 +24,12 @@ _ADAPTER_MODULES = [
 _last_version_info: dict[str, dict] = {}
 
 
+def _load_from_module(module, include: set[str] | None) -> tuple[dict[str, CountFn], dict[str, dict]]:
+    if module is hf_adapter:
+        return module.get_tokenizers(include=include)
+    return module.get_tokenizers()
+
+
 def load_tokenizers(include: set[str] | None = None) -> dict[str, CountFn]:
     global _last_version_info
     merged: dict[str, CountFn] = {}
@@ -31,7 +37,7 @@ def load_tokenizers(include: set[str] | None = None) -> dict[str, CountFn]:
 
     for module in _ADAPTER_MODULES:
         try:
-            tokenizers, module_versions = module.get_tokenizers()
+            tokenizers, module_versions = _load_from_module(module, include)
         except Exception as exc:
             logger.warning("Adapter %s failed: %s", module.__name__, exc)
             continue

@@ -20,7 +20,6 @@ def pipeline_env(tmp_path):
     experiments.mkdir()
 
     cfg = load_yaml_config(ROOT / "tests" / "fixtures" / "test_config.yaml")
-    # corpus_dir must be a writable tmp dir so stage-1 can build into it
     cfg["corpus_dir"] = str(processed)
     cfg["minimal_pairs_path"] = str(ROOT / cfg["minimal_pairs_path"])
     cfg["pricing_path"] = str(ROOT / cfg["pricing_path"])
@@ -44,7 +43,6 @@ def _run_script(script: str, *args: str) -> None:
 
 
 def test_pipeline_end_to_end(pipeline_env):
-    """Orchestrator produces exactly one experiment folder containing all outputs."""
     env = pipeline_env
 
     _run_script(
@@ -65,6 +63,7 @@ def test_pipeline_end_to_end(pipeline_env):
     fertility_cols = {
         "tokenizer",
         "register",
+        "word_count_method",
         "n_lines_attempted",
         "n_lines_tokenized",
         "total_tokens",
@@ -75,6 +74,7 @@ def test_pipeline_end_to_end(pipeline_env):
     }
     gap_cols = {
         "tokenizer",
+        "word_count_method",
         "native_fertility",
         "romanized_fertility",
         "script_fertility_ratio_native_over_romanized",
@@ -91,10 +91,8 @@ def test_pipeline_end_to_end(pipeline_env):
 
 
 def test_standalone_scripts_accept_experiment_dir(pipeline_env):
-    """Scripts 02 and 03 can write into a pre-existing folder via --experiment-dir."""
     env = pipeline_env
 
-    # Build corpus first
     _run_script(
         "01_build_corpus.py",
         "--config", str(env["config_path"]),
@@ -102,7 +100,6 @@ def test_standalone_scripts_accept_experiment_dir(pipeline_env):
         "--output-dir", str(env["processed"]),
     )
 
-    # Script 02 creates the folder
     _run_script(
         "02_run_tokenizer_audit.py",
         "--config", str(env["config_path"]),
@@ -114,7 +111,6 @@ def test_standalone_scripts_accept_experiment_dir(pipeline_env):
     assert len(exp_dirs) == 1
     exp_dir = exp_dirs[0]
 
-    # Script 03 writes into it via --experiment-dir
     _run_script(
         "03_run_minimal_pair_audit.py",
         "--config", str(env["config_path"]),
@@ -123,5 +119,4 @@ def test_standalone_scripts_accept_experiment_dir(pipeline_env):
 
     assert (exp_dir / "results" / "fertility_by_register.csv").exists()
     assert (exp_dir / "results" / "minimal_pair_fertility.csv").exists()
-    # Only one experiment folder was created
     assert len(list(env["experiments"].glob("*_standalone*"))) == 1

@@ -15,11 +15,38 @@ def word_count(text: str) -> int:
     return len(stripped.split())
 
 
+def indicnlp_word_count(text: str) -> int:
+    stripped = text.strip()
+    if not stripped:
+        return 0
+
+    from indicnlp.tokenize import indic_tokenize
+
+    return len(indic_tokenize.trivial_tokenize(stripped, lang="te"))
+
+
+def get_word_count_fn(method: str) -> CountFn:
+    normalized = method.strip().lower()
+    if normalized == "whitespace":
+        return word_count
+    if normalized == "indicnlp":
+        from indicnlp.tokenize import indic_tokenize as _indic_tokenize  # noqa: F401
+        return indicnlp_word_count
+    raise ValueError(
+        f"Unknown word-count method {method!r}; expected 'whitespace' or 'indicnlp'"
+    )
+
+
 def byte_count(text: str) -> int:
     return len(text.encode("utf-8"))
 
 
-def compute_fertility(count_fn: CountFn, lines: list[str]) -> dict:
+def compute_fertility(
+    count_fn: CountFn,
+    lines: list[str],
+    word_count_fn: CountFn = word_count,
+    word_count_method: str = "whitespace",
+) -> dict:
     total_tokens = 0
     total_words = 0
     total_bytes = 0
@@ -33,7 +60,7 @@ def compute_fertility(count_fn: CountFn, lines: list[str]) -> dict:
             continue
         n_tokenized += 1
         total_tokens += n
-        total_words += word_count(line)
+        total_words += word_count_fn(line)
         total_bytes += byte_count(line)
 
     fertility = total_tokens / total_words if total_words else 0.0
@@ -47,4 +74,5 @@ def compute_fertility(count_fn: CountFn, lines: list[str]) -> dict:
         "total_bytes": total_bytes,
         "fertility_tokens_per_word": fertility,
         "compression_bytes_per_token": compression,
+        "word_count_method": word_count_method,
     }
