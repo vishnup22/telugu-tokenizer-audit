@@ -34,8 +34,8 @@ _MENTION_RE = re.compile(r"[@#]\w+")
 _EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
 _MULTI_SPACE_RE = re.compile(r"\s+")
 
-# A lightweight set of Telugu-in-Latin cues. The goal is to bias toward
-# actual Telugu comments, not generic English code-mixed text.
+                                                                       
+                                                              
 _TELUGU_CUES = {
     "nenu",
     "neenu",

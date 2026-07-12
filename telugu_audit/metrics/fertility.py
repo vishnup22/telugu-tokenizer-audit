@@ -30,7 +30,7 @@ def get_word_count_fn(method: str) -> CountFn:
     if normalized == "whitespace":
         return word_count
     if normalized == "indicnlp":
-        from indicnlp.tokenize import indic_tokenize as _indic_tokenize  # noqa: F401
+        from indicnlp.tokenize import indic_tokenize as _indic_tokenize              
         return indicnlp_word_count
     raise ValueError(
         f"Unknown word-count method {method!r}; expected 'whitespace' or 'indicnlp'"

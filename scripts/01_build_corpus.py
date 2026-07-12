@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿                      
 """Build processed corpus from raw/interim sources."""
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from telugu_audit.corpus.build import build_corpus
+from telugu_audit.corpus.schema import get_optional_registers, get_required_registers
 from telugu_audit.run_utils import load_yaml_config
 
 
@@ -24,7 +25,12 @@ def main() -> None:
     raw_dir = Path(args.raw_dir or "data/raw")
     output_dir = Path(args.output_dir or config["corpus_dir"])
 
-    counts = build_corpus(raw_dir, output_dir)
+    counts = build_corpus(
+        raw_dir,
+        output_dir,
+        registers=get_required_registers(config),
+        optional_registers=get_optional_registers(config),
+    )
     for register, n in counts.items():
         print(f"{register}: {n} lines -> {output_dir / f'{register}.txt'}")
 

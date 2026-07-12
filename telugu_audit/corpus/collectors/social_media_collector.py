@@ -45,7 +45,7 @@ def collect_social_media(
                 if 10 <= len(text) <= 500:
                     all_lines.append(text)
 
-    # deduplicate while preserving order
+                                        
     seen: set[str] = set()
     unique: list[str] = []
     for line in all_lines:

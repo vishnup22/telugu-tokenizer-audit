@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import logging
@@ -8,11 +8,16 @@ import pandas as pd
 
 from telugu_audit.analysis.script_gap_stats import (
     per_sentence_fertility,
-    test_gap_significance,
     test_unpaired_gap_significance,
 )
 from telugu_audit.analysis.token_distribution import run_distribution_stage
-from telugu_audit.corpus.loaders import REGISTERS, load_all_registers
+from telugu_audit.corpus.loaders import load_all_registers
+from telugu_audit.corpus.schema import (
+    get_language_profiles,
+    get_optional_registers,
+    get_primary_language_profile,
+    get_required_registers,
+)
 from telugu_audit.metrics.fertility import compute_fertility, get_word_count_fn
 from telugu_audit.run_utils import resolve_tokenizer_include
 from telugu_audit.tokenizers.registry import load_tokenizers
@@ -41,47 +46,30 @@ def _resolve_word_count_methods(config: dict) -> tuple[str, dict[str, object]]:
     return primary, methods
 
 
-def _build_gap_rows(fertility_df: pd.DataFrame) -> list[dict]:
+def _build_gap_rows(fertility_df: pd.DataFrame, config: dict) -> list[dict]:
     gap_rows = []
-    for (name, method), tok_df in fertility_df.groupby(["tokenizer", "word_count_method"]):
-        native = tok_df[tok_df["register"] == "native_informal"]
-        roman = tok_df[tok_df["register"] == "romanized_informal"]
-        if native.empty or roman.empty:
-            continue
-        native_f = native.iloc[0]["fertility_tokens_per_word"]
-        roman_f = roman.iloc[0]["fertility_tokens_per_word"]
-        ratio = native_f / roman_f if roman_f else float("nan")
-        gap_rows.append(
-            {
-                "tokenizer": name,
-                "word_count_method": method,
-                "native_fertility": native_f,
-                "romanized_fertility": roman_f,
-                "script_fertility_ratio_native_over_romanized": ratio,
-            }
-        )
-    return gap_rows
-
-
-def _build_tenglish_gap_rows(fertility_df: pd.DataFrame) -> list[dict]:
-    gap_rows = []
-    for (name, method), tok_df in fertility_df.groupby(["tokenizer", "word_count_method"]):
-        native = tok_df[tok_df["register"] == "native_informal"]
-        tenglish = tok_df[tok_df["register"] == "tenglish_informal"]
-        if native.empty or tenglish.empty:
-            continue
-        native_f = native.iloc[0]["fertility_tokens_per_word"]
-        tenglish_f = tenglish.iloc[0]["fertility_tokens_per_word"]
-        ratio = native_f / tenglish_f if tenglish_f else float("nan")
-        gap_rows.append(
-            {
-                "tokenizer": name,
-                "word_count_method": method,
-                "native_fertility": native_f,
-                "tenglish_fertility": tenglish_f,
-                "script_fertility_ratio_native_over_tenglish": ratio,
-            }
-        )
+    for profile in get_language_profiles(config):
+        for (name, method), tok_df in fertility_df.groupby(["tokenizer", "word_count_method"]):
+            native = tok_df[tok_df["register"] == profile.native_informal_register]
+            roman = tok_df[tok_df["register"] == profile.romanized_informal_register]
+            if native.empty or roman.empty:
+                continue
+            native_f = native.iloc[0]["fertility_tokens_per_word"]
+            roman_f = roman.iloc[0]["fertility_tokens_per_word"]
+            ratio = native_f / roman_f if roman_f else float("nan")
+            gap_rows.append(
+                {
+                    "language": profile.name,
+                    "language_code": profile.code,
+                    "native_register": profile.native_informal_register,
+                    "romanized_register": profile.romanized_informal_register,
+                    "tokenizer": name,
+                    "word_count_method": method,
+                    "native_fertility": native_f,
+                    "romanized_fertility": roman_f,
+                    "script_fertility_ratio_native_over_romanized": ratio,
+                }
+            )
     return gap_rows
 
 
@@ -118,50 +106,67 @@ def _write_tenglish_comparison(
     tokenizers: dict[str, object],
     word_count_fn,
     results_dir: Path,
+    config: dict,
     n_bootstrap: int = 10000,
     seed: int = 42,
 ) -> None:
-    if "tenglish_informal" not in corpora:
-        return
-
     gap_rows = []
-    significance: dict[str, dict] = {}
-    native_lines = corpora["native_informal"]
-    tenglish_lines = corpora["tenglish_informal"]
+    significance: dict[str, dict[str, dict]] = {}
 
-    for name, count_fn in tokenizers.items():
-        native_df = per_sentence_fertility(
-            native_lines, count_fn, word_count_fn=word_count_fn, register="native_informal"
-        )
-        tenglish_df = per_sentence_fertility(
-            tenglish_lines, count_fn, word_count_fn=word_count_fn, register="tenglish_informal"
-        )
+    for profile in get_language_profiles(config):
+        if not profile.tenglish_register or profile.tenglish_register not in corpora:
+            continue
 
-        stats = test_unpaired_gap_significance(
-            native_df,
-            tenglish_df,
-            n_bootstrap=n_bootstrap,
-            seed=seed,
-        )
-        stats["word_count_method"] = getattr(word_count_fn, "__name__", "unknown")
-        significance[name] = stats
-        gap_rows.append(
-            {
-                "tokenizer": name,
-                "native_informal_fertility": float(native_df["fertility"].mean()),
-                "tenglish_informal_fertility": float(tenglish_df["fertility"].mean()),
-                "native_over_tenglish_ratio": float(native_df["fertility"].mean() / tenglish_df["fertility"].mean())
-                if float(tenglish_df["fertility"].mean())
-                else float("nan"),
-                "word_count_method": getattr(word_count_fn, "__name__", "unknown"),
-            }
-        )
+        native_lines = corpora[profile.native_informal_register]
+        tenglish_lines = corpora[profile.tenglish_register]
+        language_significance: dict[str, dict] = {}
 
-    pd.DataFrame(gap_rows).to_csv(results_dir / "tenglish_script_fairness.csv", index=False)
-    (results_dir / "tenglish_script_fairness_significance.json").write_text(
-        json.dumps(significance, indent=2),
-        encoding="utf-8",
-    )
+        for name, count_fn in tokenizers.items():
+            native_df = per_sentence_fertility(
+                native_lines,
+                count_fn,
+                word_count_fn=word_count_fn,
+                register=profile.native_informal_register,
+            )
+            tenglish_df = per_sentence_fertility(
+                tenglish_lines,
+                count_fn,
+                word_count_fn=word_count_fn,
+                register=profile.tenglish_register,
+            )
+
+            stats = test_unpaired_gap_significance(
+                native_df,
+                tenglish_df,
+                n_bootstrap=n_bootstrap,
+                seed=seed,
+            )
+            stats["word_count_method"] = getattr(word_count_fn, "__name__", "unknown")
+            language_significance[name] = stats
+            gap_rows.append(
+                {
+                    "language": profile.name,
+                    "language_code": profile.code,
+                    "native_register": profile.native_informal_register,
+                    "tenglish_register": profile.tenglish_register,
+                    "tokenizer": name,
+                    "native_informal_fertility": float(native_df["fertility"].mean()),
+                    "tenglish_informal_fertility": float(tenglish_df["fertility"].mean()),
+                    "native_over_tenglish_ratio": float(native_df["fertility"].mean() / tenglish_df["fertility"].mean())
+                    if float(tenglish_df["fertility"].mean())
+                    else float("nan"),
+                    "word_count_method": getattr(word_count_fn, "__name__", "unknown"),
+                }
+            )
+
+        significance[profile.name] = language_significance
+
+    if gap_rows:
+        pd.DataFrame(gap_rows).to_csv(results_dir / "tenglish_script_fairness.csv", index=False)
+        (results_dir / "tenglish_script_fairness_significance.json").write_text(
+            json.dumps(significance, indent=2),
+            encoding="utf-8",
+        )
 
 
 def run_fertility_stage(
@@ -176,7 +181,11 @@ def run_fertility_stage(
         raise RuntimeError("No tokenizers loaded - check config and API keys")
     primary_word_count_method, word_count_methods = _resolve_word_count_methods(config)
 
-    corpora = load_all_registers(config["corpus_dir"])
+    corpora = load_all_registers(
+        config["corpus_dir"],
+        required_registers=get_required_registers(config),
+        optional_registers=get_optional_registers(config),
+    )
     results_dir = experiment_dir / "results"
     results_dir.mkdir(exist_ok=True)
 
@@ -201,20 +210,25 @@ def run_fertility_stage(
     ].reset_index(drop=True)
     primary_df.to_csv(results_dir / "fertility_by_register.csv", index=False)
 
-    gap_sensitivity_df = pd.DataFrame(_build_gap_rows(sensitivity_df))
-    gap_sensitivity_df.to_csv(
-        results_dir / "script_fairness_gap_sensitivity.csv", index=False
-    )
-    gap_primary_df = gap_sensitivity_df[
-        gap_sensitivity_df["word_count_method"] == primary_word_count_method
-    ].reset_index(drop=True)
-    gap_primary_df.to_csv(results_dir / "script_fairness_gap.csv", index=False)
+    gap_sensitivity_df = pd.DataFrame(_build_gap_rows(sensitivity_df, config))
+    if not gap_sensitivity_df.empty:
+        gap_sensitivity_df.to_csv(
+            results_dir / "script_fairness_gap_sensitivity.csv", index=False
+        )
+        gap_primary_df = gap_sensitivity_df[
+            gap_sensitivity_df["word_count_method"] == primary_word_count_method
+        ].reset_index(drop=True)
+        gap_primary_df.to_csv(results_dir / "script_fairness_gap.csv", index=False)
+    else:
+        pd.DataFrame().to_csv(results_dir / "script_fairness_gap_sensitivity.csv", index=False)
+        pd.DataFrame().to_csv(results_dir / "script_fairness_gap.csv", index=False)
 
     _write_tenglish_comparison(
         corpora,
         tokenizers,
         word_count_methods[primary_word_count_method],
         results_dir,
+        config,
     )
 
     _write_rank_stability(
@@ -231,4 +245,4 @@ def run_fertility_stage(
         word_count_method=primary_word_count_method,
     )
 
-    return {r: len(corpora[r]) for r in REGISTERS if r in corpora}
+    return {register: len(lines) for register, lines in corpora.items()}

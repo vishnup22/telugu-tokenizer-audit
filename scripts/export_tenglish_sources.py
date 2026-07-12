@@ -227,7 +227,7 @@ def main() -> None:
         if not args.bearer_token:
             raise SystemExit("Missing X bearer token. Set X_BEARER_TOKEN or pass --bearer-token.")
         n = export_x_recent_search(args.query, Path(args.output), args.bearer_token, args.max_results)
-    else:  # pragma: no cover
+    else:                    
         raise SystemExit(f"Unknown exporter kind: {args.kind}")
 
     print(f"Wrote {n} rows to {args.output}")

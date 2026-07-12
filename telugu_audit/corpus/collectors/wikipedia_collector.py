@@ -18,7 +18,7 @@ def _split_sentences(text: str) -> list[str]:
         paragraph = paragraph.strip()
         if not paragraph:
             continue
-        # Split on sentence-ending punctuation followed by whitespace
+                                                                     
         parts = re.split(r"(?<=[.।?!])\s+", paragraph)
         for part in parts:
             part = part.strip()

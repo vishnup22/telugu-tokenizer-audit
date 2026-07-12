@@ -43,10 +43,10 @@ def get_tokenizers() -> tuple[dict, dict]:
         cache: dict[str, int] = _load_disk_cache()
         logger.info("Claude disk cache: %d entries pre-loaded", len(cache))
 
-        # Measure message-format overhead once so we return text-only token
-        # counts comparable to tiktoken (which counts raw text, no overhead).
-        # Use "a" as a probe — a single ASCII letter is always 1 token, so
-        # overhead = count_tokens("a") - 1.
+                                                                           
+                                                                             
+                                                                          
+                                           
         _probe_resp = client.messages.count_tokens(
             model=DEFAULT_MODEL,
             messages=[{"role": "user", "content": "a"}],

@@ -10,12 +10,12 @@ from telugu_audit.analysis.token_distribution import (
 
 
 def _count_fn(text: str) -> int:
-    return len(text.split()) * 2  # 2 tokens per word, always
+    return len(text.split()) * 2                             
 
 
-# ---------------------------------------------------------------------------
-# per_line_fertility
-# ---------------------------------------------------------------------------
+                                                                             
+                    
+                                                                             
 
 def test_per_line_fertility_constant_count_fn():
     lines = ["one two three", "a b"]
@@ -35,9 +35,9 @@ def test_per_line_fertility_empty_input():
     assert len(f) == 0
 
 
-# ---------------------------------------------------------------------------
-# distribution_summary
-# ---------------------------------------------------------------------------
+                                                                             
+                      
+                                                                             
 
 def test_distribution_summary_keys():
     result = distribution_summary(["a b c"] * 10, _count_fn)
@@ -56,17 +56,17 @@ def test_distribution_summary_constant_fertility():
 
 
 def test_distribution_summary_percentiles_ordered():
-    # varied line lengths → varied fertility values
+                                                   
     def varied(text: str) -> int:
-        return len(text.split())  # 1 token per word → fertility always 1.0
+        return len(text.split())                                           
     lines = [f"{'word ' * i}end" for i in range(1, 21)]
     result = distribution_summary(lines, varied)
     assert result["p25"] <= result["p50"] <= result["p75"] <= result["p90"] <= result["p99"]
 
 
-# ---------------------------------------------------------------------------
-# tokens_per_word_buckets
-# ---------------------------------------------------------------------------
+                                                                             
+                         
+                                                                             
 
 def test_tokens_per_word_buckets_all_in_one_bucket():
     words = ["hello"] * 10

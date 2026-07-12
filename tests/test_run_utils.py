@@ -22,7 +22,7 @@ def test_load_minimal_pairs_rejects_bad_morph_type(tmp_path):
 
 def test_load_corpus_from_fixture():
     root = Path(__file__).resolve().parents[1]
-    # build processed file first via raw fixture naming
+                                                       
     raw = root / "tests" / "fixtures" / "toy_corpus"
     processed = root / "tests" / "fixtures" / "toy_corpus" / "_processed"
     processed.mkdir(exist_ok=True)

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -37,8 +37,22 @@ def plot_script_fairness_gap(results_dir: str | Path, figures_dir: str | Path) -
         return
 
     df = pd.read_csv(path)
+    if df.empty:
+        return
+
     out = Path(figures_dir)
     out.mkdir(parents=True, exist_ok=True)
+
+    if "language" in df.columns and df["language"].nunique() > 1:
+        for language, subset in df.groupby("language"):
+            fig, ax = plt.subplots(figsize=(8, 4))
+            ax.bar(subset["tokenizer"], subset["script_fertility_ratio_native_over_romanized"])
+            ax.axhline(1.0, color="gray", linestyle="--", linewidth=0.8)
+            ax.set_title(f"Script fairness gap ({language}: native / romanized fertility)")
+            ax.set_ylabel("ratio")
+            ax.tick_params(axis="x", rotation=45)
+            _save_figure(fig, out, f"script_fairness_gap_{language}")
+        return
 
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.bar(df["tokenizer"], df["script_fertility_ratio_native_over_romanized"])

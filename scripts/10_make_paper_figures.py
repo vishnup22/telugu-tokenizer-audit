@@ -47,11 +47,11 @@ mpl.rcParams.update({
     "ps.fonttype":        42,
 })
 
-# ACL two-column dimensions in inches
-COL_W  = 3.33   # single column width
-TEXT_W = 6.97   # full text width (both columns)
+                                     
+COL_W  = 3.33                        
+TEXT_W = 6.97                                   
 
-# Colorblind-safe (Wong 2011)
+                             
 COLORS = {
     "native_formal":      "#0072B2",
     "native_informal":    "#E69F00",
@@ -104,9 +104,9 @@ REGISTER_LABELS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Figure 1 — Grouped bar: fertility × register × tokenizer
-# ---------------------------------------------------------------------------
+                                                                             
+                                                          
+                                                                             
 
 def fig1_fertility_bar(df: pd.DataFrame, out: Path) -> None:
     registers = ["native_formal", "native_informal", "romanized_informal"]
@@ -125,7 +125,7 @@ def fig1_fertility_bar(df: pd.DataFrame, out: Path) -> None:
         ax.bar(x + i * bar_w, vals, width=bar_w,
                color=COLORS[reg], label=REGISTER_LABELS[reg],
                edgecolor="white", linewidth=0.4)
-        # annotate only GPT-2 bars (tallest)
+                                            
         for xi, val in zip(x + i * bar_w, vals):
             if val > 15:
                 ax.text(xi, val + 0.3, f"{val:.1f}",
@@ -143,9 +143,9 @@ def fig1_fertility_bar(df: pd.DataFrame, out: Path) -> None:
     print(f"  {out.name}")
 
 
-# ---------------------------------------------------------------------------
-# Figure 2 — Violin: per-sentence δ distribution
-# ---------------------------------------------------------------------------
+                                                                             
+                                                
+                                                                             
 
 def fig2_gap_violin(df: pd.DataFrame, out: Path) -> None:
     fig, ax = plt.subplots(figsize=(TEXT_W, 2.6))
@@ -193,9 +193,9 @@ def fig2_gap_violin(df: pd.DataFrame, out: Path) -> None:
     print(f"  {out.name}")
 
 
-# ---------------------------------------------------------------------------
-# Figure 3 — Heatmap: tokens/word × morph type × tokenizer
-# ---------------------------------------------------------------------------
+                                                                             
+                                                          
+                                                                             
 
 def fig3_heatmap_morph(df: pd.DataFrame, out: Path) -> None:
     from matplotlib.colors import LogNorm
@@ -246,9 +246,9 @@ def fig3_heatmap_morph(df: pd.DataFrame, out: Path) -> None:
     print(f"  {out.name}")
 
 
-# ---------------------------------------------------------------------------
-# Figure 4 — Stacked bar: token-length distribution (native informal)
-# ---------------------------------------------------------------------------
+                                                                             
+                                                                     
+                                                                             
 
 def fig4_token_length_dist(df: pd.DataFrame, out: Path) -> None:
     register = "native_informal"
@@ -292,9 +292,9 @@ def fig4_token_length_dist(df: pd.DataFrame, out: Path) -> None:
     print(f"  {out.name}")
 
 
-# ---------------------------------------------------------------------------
-# Figure 5 — Scatter: fertility vs MILU accuracy
-# ---------------------------------------------------------------------------
+                                                                             
+                                                
+                                                                             
 
 def fig5_fertility_vs_accuracy(df: pd.DataFrame,
                                 milu_claude: dict,
@@ -350,9 +350,9 @@ def fig5_fertility_vs_accuracy(df: pd.DataFrame,
     print(f"  {out.name}")
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
+                                                                             
+      
+                                                                             
 
 def main() -> None:
     parser = argparse.ArgumentParser()

@@ -30,16 +30,16 @@ from typing import Iterator
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from telugu_audit.run_utils import load_yaml_config  # triggers load_dotenv
+from telugu_audit.run_utils import load_yaml_config                        
 
-# ── configuration ──────────────────────────────────────────────────────────────
+                                                                                 
 
 UD_TELUGU_URL = (
     "https://raw.githubusercontent.com/UniversalDependencies/"
     "UD_Telugu-MTG/master/te_mtg-ud-train.conllu"
 )
 
-TARGET_PER_TYPE = 8   # minimum candidates per morph_type before Claude fills gaps
+TARGET_PER_TYPE = 8                                                               
 
 VALID_MORPH_TYPES = [
     "base_noun",
@@ -53,7 +53,7 @@ VALID_MORPH_TYPES = [
     "verb_agglutination_chain",
 ]
 
-# ── CoNLL-U parser ─────────────────────────────────────────────────────────────
+                                                                                 
 
 def _parse_feats(feats_str: str) -> dict[str, str]:
     if feats_str in ("_", ""):
@@ -70,7 +70,7 @@ def _iter_tokens(conllu_text: str) -> Iterator[dict]:
         if len(parts) != 10:
             continue
         tok_id = parts[0]
-        if "-" in tok_id or "." in tok_id:   # range or empty node
+        if "-" in tok_id or "." in tok_id:                        
             continue
         yield {
             "form":  parts[1],
@@ -96,7 +96,7 @@ def _classify(tok: dict) -> str | None:
     upos  = tok["upos"]
     feats = tok["feats"]
 
-    # skip punctuation, numerals, single chars
+                                              
     if upos in ("PUNCT", "NUM", "SYM") or len(form) < 2:
         return None
 
@@ -105,44 +105,44 @@ def _classify(tok: dict) -> str | None:
     polite  = feats.get("Polite", "")
     foreign = _is_borrowed(tok)
 
-    # verb agglutination chains: finite verbs with tense + person
+                                                                 
     if upos == "VERB" and feats.get("Tense") and feats.get("Person"):
         return "verb_agglutination_chain"
 
-    # honorific
+               
     if polite == "Form":
         return "honorific_suffix"
 
-    # borrowed forms
+                    
     if foreign:
         if case:
             return "borrowed_plus_case_suffix"
         return "borrowed_base"
 
     if upos in ("NOUN", "PROPN"):
-        # plural
+                
         if number == "Plur":
             return "plural_suffix"
 
         if case and case not in ("Nom", ""):
-            # detect sandhi: stem in form differs from lemma by more than the suffix
+                                                                                    
             lemma_root = tok["lemma"].rstrip("ుాిీుూెేైొోౌం్")
             form_root  = form[:max(1, len(lemma_root))]
             sandhi = lemma_root and form_root and lemma_root != form_root
             return "case_suffix_with_sandhi" if sandhi else "case_suffix"
 
-        # uninflected noun
+                          
         if not case or case == "Nom":
             return "base_noun"
 
-    # ADJ compounds with sandhi (rough heuristic: long ADJ/NOUN with no spaces)
+                                                                               
     if upos in ("ADJ", "NOUN") and len(form) > 8 and "్" in form:
         return "compound_with_sandhi"
 
     return None
 
 
-# ── Stage 1: extract from UD treebank ─────────────────────────────────────────
+                                                                                
 
 def extract_from_ud(url: str) -> list[dict]:
     print(f"Downloading UD Telugu treebank ...")
@@ -163,7 +163,7 @@ def extract_from_ud(url: str) -> list[dict]:
         seen.add(key)
         candidates.append({
             "word":       tok["form"],
-            "gloss":      tok["lemma"],   # lemma as placeholder gloss — review needed
+            "gloss":      tok["lemma"],                                               
             "morph_type": morph_type,
             "source":     "UD_Telugu-MTG",
         })
@@ -171,7 +171,7 @@ def extract_from_ud(url: str) -> list[dict]:
     return candidates
 
 
-# ── Stage 2: Claude gap-fill ───────────────────────────────────────────────────
+                                                                                 
 
 _CLAUDE_SYSTEM = """\
 You are a Telugu linguistics expert. Generate Telugu word examples for a \
@@ -229,13 +229,13 @@ def claude_generate(morph_type: str, n: int, existing: list[str]) -> list[dict]:
     return rows
 
 
-# ── main ───────────────────────────────────────────────────────────────────────
+                                                                                 
 
 def main() -> None:
     out_path = Path("data/minimal_pairs/minimal_pairs_candidates.tsv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Stage 1 — UD
+                  
     candidates = extract_from_ud(UD_TELUGU_URL)
     by_type: dict[str, list[dict]] = {t: [] for t in VALID_MORPH_TYPES}
     for c in candidates:
@@ -246,7 +246,7 @@ def main() -> None:
     for mt, rows in by_type.items():
         print(f"  UD  {mt:35s} {len(rows):3d} candidates")
 
-    # Stage 2 — Claude gap-fill
+                               
     print("\nFilling gaps with Claude ...")
     for mt in VALID_MORPH_TYPES:
         current = by_type[mt]
@@ -256,11 +256,11 @@ def main() -> None:
             continue
         existing_words = [r["word"] for r in current]
         print(f"  GEN {mt:35s} (need {deficit} more) ...", end=" ", flush=True)
-        new_rows = claude_generate(mt, deficit + 2, existing_words)  # +2 buffer
+        new_rows = claude_generate(mt, deficit + 2, existing_words)             
         by_type[mt].extend(new_rows[:deficit])
         print(f"got {len(new_rows)}")
 
-    # write output
+                  
     all_rows = [r for rows in by_type.values() for r in rows]
     header = "# REVIEW THIS FILE before renaming to minimal_pairs.tsv\n"
     header += "# Delete incorrect rows. Fix glosses. Add missing examples.\n"

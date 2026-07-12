@@ -32,3 +32,10 @@ data/processed/
 *.pkl
 *.bin
 *.safetensors
+
+future_work.md
+paper_review.md
+PLAN.md
+SCOPE_LOCK.md
+results.md
+

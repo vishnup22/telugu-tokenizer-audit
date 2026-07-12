@@ -1,0 +1,110 @@
+# REVIEW BEFORE USE
+# Hindi-specific candidate set from UD Hindi-HDTB.
+# Categories are provisional and should not be mixed with Telugu categories without review.
+word	gloss	morph_type	source	note
+# --- base_noun ---
+नवाब	नवाब	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+प्रवेश	प्रवेश	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+द्वार	द्वार	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+प्रार्थना	प्रार्थना	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+इमारत	इमारत	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+इज्तिमा	इज्तिमा	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+शौकत	शौकत	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+नमूना	नमूना	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+कुदसिया	कुदसिया	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+गोहर	गोहर	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+बेगम	बेगम	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हिंदू	हिंदू	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+मुगल	मुगल	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+संगम	संगम	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+संस्था	संस्था	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+प्रदर्शन	प्रदर्शन	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+दृश्य	दृश्य	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+केंद्र	केंद्र	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+चार्ल्स	चार्ल्स	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+डिजाइन	डिजाइन	base_noun	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+# --- oblique_case_form ---
+एशिया	एशिया	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+शाहजेहन	शाहजेहन	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हॉल	हॉल	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+दिन	दिन	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+देश	देश	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+महल	महल	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+झील	झील	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+किनारे	किनारा	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+वास्तुकला	वास्तुकला	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+बेगम	बेगम	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+काल	काल	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+कला	कला	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+भारत	भारत	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+रूप	रूप	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+कोरिया	कोरिया	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+क्षेत्र	क्षेत्र	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+भवन	भवन	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+फाइन	फाइन	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आर्ट	आर्ट	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+सोमवार	सोमवार	oblique_case_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+# --- plural_form ---
+मस्जिदों	मस्जिद	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+मेहराबें	मेहराब	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+द्वार	द्वार	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+लोगों	लोग	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+ऑडिटोरियम	ऑडिटोरियम	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+कविताओं	कविता	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हिल्स	हिल	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+गुफाओं	गुफा	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+वस्तुओं	वस्तु	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+परंपराओं	परंपरा	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आवासों	आवास	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+नमूने	नमूना	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+नमूनों	नमूना	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हिस्सों	हिस्सा	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जिलों	जिला	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+प्राणियों	प्राणी	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+गैलरी	गैलरी	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हवेलियाँ	हवेली	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+गलियों	गली	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+दुकानें	दुकान	plural_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+# --- honorific_form ---
+जिन्हें	जो	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आप	आप	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+उठा	उठाना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+सकते	सकना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+निजी	निजी	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जा	जाना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+उनके	वह	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+खिलजी	खिलजी	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+शिवजी	शिव	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+फौजी	फौजी	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हुए	होना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+उनकी	वह	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+चुके	चुकना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आपने	आप	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आपका	आप	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+कर	करना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आपके	आप	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+ले	लेना	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+के	का	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आपकी	आप	honorific_form	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+# --- borrowed_form ---
+# --- verb_inflection_chain ---
+है	है	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+था	था	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+हैं	है	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+थे	था	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+होंगे	होना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+होगा	होना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+लीजिए	लेना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+लगाइएगा	लगाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+सके	सकना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जाएँ	जाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+आएंगे	आना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+भूलिएगा	भूलना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+लगेगी	लगना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+देखेंगे	देखना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+लगेगा	लगना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जाएं	जाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+उठाइएगा	उठाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जाएँगे	जाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जाइए	जाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review
+जाए	जाना	verb_inflection_chain	UD_Hindi-HDTB	lemma-as-gloss placeholder; requires Hindi-speaker review

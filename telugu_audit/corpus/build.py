@@ -1,22 +1,27 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
 from telugu_audit.corpus.cleaning import clean_lines
-from telugu_audit.corpus.loaders import OPTIONAL_REGISTERS, REGISTERS
+from telugu_audit.corpus.schema import DEFAULT_OPTIONAL_REGISTERS, DEFAULT_REQUIRED_REGISTERS
+
+
+DEFAULT_REGISTERS = DEFAULT_REQUIRED_REGISTERS
+DEFAULT_OPTIONAL = DEFAULT_OPTIONAL_REGISTERS
 
 
 def build_corpus(
     raw_dir: Path,
     output_dir: Path,
-    registers: tuple[str, ...] = REGISTERS,
+    registers: tuple[str, ...] = DEFAULT_REGISTERS,
+    optional_registers: tuple[str, ...] = DEFAULT_OPTIONAL,
 ) -> dict[str, int]:
     """Clean raw register files and write them to output_dir."""
     output_dir.mkdir(parents=True, exist_ok=True)
     line_counts: dict[str, int] = {}
 
     active_registers = list(registers)
-    for register in OPTIONAL_REGISTERS:
+    for register in optional_registers:
         if (raw_dir / f"{register}.txt").exists() and register not in active_registers:
             active_registers.append(register)
 

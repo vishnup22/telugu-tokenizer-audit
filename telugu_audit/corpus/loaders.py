@@ -1,30 +1,26 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 from pathlib import Path
 
 import pandas as pd
 
-REGISTERS = ("native_formal", "native_informal", "romanized_informal")
-OPTIONAL_REGISTERS = ("english_wiki", "tenglish_informal")
-
-VALID_MORPH_TYPES = frozenset(
-    {
-        "base_noun",
-        "case_suffix",
-        "case_suffix_with_sandhi",
-        "plural_suffix",
-        "honorific_suffix",
-        "compound_with_sandhi",
-        "borrowed_base",
-        "borrowed_plus_case_suffix",
-        "verb_agglutination_chain",
-    }
+from telugu_audit.corpus.schema import (
+    DEFAULT_OPTIONAL_REGISTERS,
+    DEFAULT_REQUIRED_REGISTERS,
+    VALID_MORPH_TYPES,
 )
 
+REGISTERS = DEFAULT_REQUIRED_REGISTERS
+OPTIONAL_REGISTERS = DEFAULT_OPTIONAL_REGISTERS
 
-def load_corpus(corpus_dir: str | Path, register: str) -> list[str]:
-    expected = REGISTERS + OPTIONAL_REGISTERS
+
+def load_corpus(
+    corpus_dir: str | Path,
+    register: str,
+    allowed_registers: tuple[str, ...] | None = None,
+) -> list[str]:
+    expected = allowed_registers or (REGISTERS + OPTIONAL_REGISTERS)
     if register not in expected:
         raise ValueError(f"Unknown register {register!r}; expected one of {expected}")
 
@@ -41,13 +37,24 @@ def load_corpus(corpus_dir: str | Path, register: str) -> list[str]:
     return lines
 
 
-def load_all_registers(corpus_dir: str | Path) -> dict[str, list[str]]:
+def load_all_registers(
+    corpus_dir: str | Path,
+    required_registers: tuple[str, ...] | None = None,
+    optional_registers: tuple[str, ...] | None = None,
+) -> dict[str, list[str]]:
     corpus_path = Path(corpus_dir)
-    registers = list(REGISTERS)
-    for register in OPTIONAL_REGISTERS:
+    required = required_registers or REGISTERS
+    optional = optional_registers or OPTIONAL_REGISTERS
+    allowed = tuple(required) + tuple(optional)
+
+    registers = list(required)
+    for register in optional:
         if (corpus_path / f"{register}.txt").exists():
             registers.append(register)
-    return {register: load_corpus(corpus_dir, register) for register in registers}
+    return {
+        register: load_corpus(corpus_dir, register, allowed_registers=allowed)
+        for register in registers
+    }
 
 
 def load_minimal_pairs(path: str | Path) -> pd.DataFrame:
