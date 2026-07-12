@@ -14,6 +14,7 @@ from telugu_audit.corpus.collectors.english_wikipedia_collector import (
 )
 from telugu_audit.corpus.collectors.social_media_collector import collect_social_media
 from telugu_audit.corpus.collectors.transliteration_collector import collect_romanized
+from telugu_audit.corpus.collectors.tenglish_collector import collect_tenglish_informal
 from telugu_audit.corpus.collectors.wikipedia_collector import collect_wikipedia
 
 
@@ -39,12 +40,27 @@ def main() -> None:
         action="store_true",
         help="Also collect english_wiki.txt for the direct English baseline",
     )
+    parser.add_argument(
+        "--include-tenglish",
+        action="store_true",
+        help="Also collect tenglish_informal.txt from raw public-source exports",
+    )
+    parser.add_argument(
+        "--tenglish-sources-dir",
+        default="data/raw/tenglish_sources",
+        help="Directory containing exported YouTube/X/Reddit comments for tenglish_informal",
+    )
+    parser.add_argument(
+        "--tenglish-metadata-output",
+        default=None,
+        help="Optional metadata JSONL path for accepted Tenglish lines",
+    )
     args = parser.parse_args()
 
     raw_dir = Path(args.output_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"[1/3] native_formal - sampling {args.n_samples} Wikipedia sentences ...")
+    print(f"[1/4] native_formal - sampling {args.n_samples} Wikipedia sentences ...")
     n = collect_wikipedia(
         raw_dir / "native_formal.txt",
         n_samples=args.n_samples,
@@ -52,7 +68,7 @@ def main() -> None:
     )
     print(f"      {n} lines -> {raw_dir / 'native_formal.txt'}")
 
-    print(f"[2/3] native_informal - sampling {args.n_samples} social-media sentences ...")
+    print(f"[2/4] native_informal - sampling {args.n_samples} social-media sentences ...")
     n = collect_social_media(
         raw_dir / "native_informal.txt",
         n_samples=args.n_samples,
@@ -60,14 +76,32 @@ def main() -> None:
     )
     print(f"      {n} lines -> {raw_dir / 'native_informal.txt'}")
 
-    print("[3/3] romanized_informal - transliterating native_informal (ITRANS) ...")
+    print("[3/4] romanized_informal - transliterating native_informal (ITRANS) ...")
     n = collect_romanized(
         raw_dir / "native_informal.txt",
         raw_dir / "romanized_informal.txt",
     )
     print(f"      {n} lines -> {raw_dir / 'romanized_informal.txt'}")
 
-    if args.include_english:
+    if args.include_tenglish:
+        sources_dir = Path(args.tenglish_sources_dir)
+        metadata_path = (
+            Path(args.tenglish_metadata_output)
+            if args.tenglish_metadata_output
+            else raw_dir / "tenglish_informal.meta.jsonl"
+        )
+        print(
+            f"[4/4] tenglish_informal - filtering public-source exports from {sources_dir} ..."
+        )
+        n = collect_tenglish_informal(
+            sources_dir=sources_dir,
+            output_path=raw_dir / "tenglish_informal.txt",
+            metadata_path=metadata_path,
+            n_samples=args.n_samples,
+            seed=args.seed,
+        )
+        print(f"      {n} lines -> {raw_dir / 'tenglish_informal.txt'}")
+    elif args.include_english:
         print(f"[4/4] english_wiki - sampling {args.n_samples} English Wikipedia sentences ...")
         n = collect_english_wikipedia(
             raw_dir / "english_wiki.txt",

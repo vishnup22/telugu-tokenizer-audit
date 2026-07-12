@@ -23,7 +23,7 @@ def run_minimal_pair_stage(
     pairs = load_minimal_pairs(config["minimal_pairs_path"])
 
     results_dir = experiment_dir / "results"
-    results_dir.mkdir(exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
 
     rows = []
     for _, row in pairs.iterrows():
@@ -47,3 +47,4 @@ def run_minimal_pair_stage(
             )
 
     pd.DataFrame(rows).to_csv(results_dir / "minimal_pair_fertility.csv", index=False)
+

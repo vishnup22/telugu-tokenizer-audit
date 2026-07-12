@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 REGISTERS = ("native_formal", "native_informal", "romanized_informal")
-OPTIONAL_REGISTERS = ("english_wiki",)
+OPTIONAL_REGISTERS = ("english_wiki", "tenglish_informal")
 
 VALID_MORPH_TYPES = frozenset(
     {

@@ -1,0 +1,9 @@
+corpus_dir: data/processed
+minimal_pairs_path: data/minimal_pairs/minimal_pairs.tsv
+tokenizer_set: full_no_llama
+pricing_path: configs/pricing.yaml
+run_tag: full_no_llama_english_r2
+primary_word_count_method: whitespace
+word_count_methods:
+- whitespace
+- indicnlp

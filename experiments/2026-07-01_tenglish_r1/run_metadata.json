@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-07-01T01:50:28.712914+00:00",
+  "config_used": "config_snapshot.yaml",
+  "tokenizer_versions": {
+    "openai-gpt4o": {
+      "library": "tiktoken==0.13.0",
+      "encoding": "o200k_base"
+    },
+    "claude": {
+      "library": "anthropic==0.98.1",
+      "model": "claude-haiku-4-5-20251001",
+      "method": "messages.count_tokens API"
+    },
+    "hf-gpt2": {
+      "library": "transformers==4.57.6",
+      "model": "gpt2",
+      "revision": "unknown"
+    },
+    "sarvam-2b": {
+      "library": "transformers==4.57.6",
+      "model": "sarvamai/sarvam-2b-v0.5",
+      "revision": "unknown"
+    },
+    "sarvam-105b": {
+      "library": "transformers==4.57.6",
+      "model": "sarvamai/sarvam-105b",
+      "revision": "unknown"
+    },
+    "telugu-gpt2": {
+      "library": "sentencepiece==0.2.1",
+      "model": "pulipakav-1/dravidian-gpt2-telugu",
+      "vocab_size": 32000
+    },
+    "xlm-r": {
+      "library": "transformers==4.57.6",
+      "model": "xlm-roberta-base",
+      "revision": "unknown"
+    },
+    "indicbert": {
+      "library": "transformers==4.57.6",
+      "model": "ai4bharat/indic-bert",
+      "revision": "unknown"
+    },
+    "llama-3": {
+      "library": "transformers==4.57.6",
+      "model": "meta-llama/Meta-Llama-3-8B",
+      "revision": "unknown"
+    }
+  },
+  "corpus_line_counts": {
+    "native_formal": 789,
+    "native_informal": 1000,
+    "romanized_informal": 1000
+  },
+  "git_commit": "8f09e182585a00db8917475ecb51ed67bdb1e45c"
+}

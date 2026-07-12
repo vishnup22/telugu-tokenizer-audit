@@ -40,6 +40,27 @@ def per_sentence_gap(
     return pd.DataFrame(rows)
 
 
+def per_sentence_fertility(
+    lines: list[str],
+    count_fn,
+    word_count_fn=word_count,
+    register: str | None = None,
+) -> pd.DataFrame:
+    rows = []
+    for i, line in enumerate(lines):
+        n_words = word_count_fn(line)
+        if n_words == 0:
+            continue
+        rows.append(
+            {
+                "sentence_idx": i,
+                "register": register,
+                "fertility": count_fn(line) / n_words,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def rank_biserial_correlation(differences: pd.Series | np.ndarray) -> float:
     diffs = np.asarray(pd.Series(differences).dropna(), dtype=float)
     diffs = diffs[diffs != 0]
@@ -98,6 +119,36 @@ def bootstrap_median_ci(
         )
 
 
+def bootstrap_median_difference_ci(
+    native_values: pd.Series | np.ndarray,
+    other_values: pd.Series | np.ndarray,
+    confidence_level: float = 0.95,
+    n_resamples: int = 10000,
+    seed: int = 42,
+) -> tuple[float, float]:
+    native = np.asarray(pd.Series(native_values).dropna(), dtype=float)
+    other = np.asarray(pd.Series(other_values).dropna(), dtype=float)
+    if len(native) == 0 or len(other) == 0:
+        return float("nan"), float("nan")
+
+    try:
+        rng = np.random.default_rng(seed)
+        boot_diffs = np.array(
+            [
+                np.median(rng.choice(native, size=len(native), replace=True))
+                - np.median(rng.choice(other, size=len(other), replace=True))
+                for _ in range(n_resamples)
+            ]
+        )
+        alpha = (1 - confidence_level) / 2
+        return (
+            float(np.percentile(boot_diffs, alpha * 100)),
+            float(np.percentile(boot_diffs, (1 - alpha) * 100)),
+        )
+    except Exception:
+        return float("nan"), float("nan")
+
+
 def test_gap_significance(
     gap_df: pd.DataFrame,
     n_bootstrap: int = 10000,
@@ -142,3 +193,44 @@ def test_gap_significance(
         "bootstrap_ci_95_high": ci_high,
     }
 
+
+def test_unpaired_gap_significance(
+    native_df: pd.DataFrame,
+    other_df: pd.DataFrame,
+    native_col: str = "fertility",
+    other_col: str = "fertility",
+    n_bootstrap: int = 10000,
+    seed: int = 42,
+) -> dict:
+    """Two-sided Mann-Whitney test for an unpaired Tenglish-style comparison."""
+    native = pd.Series(native_df[native_col]).dropna().astype(float)
+    other = pd.Series(other_df[other_col]).dropna().astype(float)
+    if len(native) < 10 or len(other) < 10:
+        raise ValueError(
+            f"Too few observations for an unpaired test (native={len(native)}, other={len(other)})"
+        )
+
+    stat, p_value = stats.mannwhitneyu(native, other, alternative="two-sided")
+    median_gap = float(native.median() - other.median())
+    median_direction = (
+        "native_costlier"
+        if median_gap > 0
+        else "other_costlier" if median_gap < 0 else "neutral"
+    )
+    ci_low, ci_high = bootstrap_median_difference_ci(
+        native, other, n_resamples=n_bootstrap, seed=seed
+    )
+    rank_biserial = float((2 * stat) / (len(native) * len(other)) - 1)
+
+    return {
+        "n_native": int(len(native)),
+        "n_other": int(len(other)),
+        "median_gap": median_gap,
+        "mean_gap": float(native.mean() - other.mean()),
+        "median_direction": median_direction,
+        "mannwhitneyu_statistic": float(stat),
+        "p_value": float(p_value),
+        "rank_biserial_correlation": rank_biserial,
+        "bootstrap_ci_95_low": ci_low,
+        "bootstrap_ci_95_high": ci_high,
+    }

@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+﻿\documentclass[11pt]{article}
 
 % Change "review" to "final" to generate the final (sometimes called camera-ready) version.
 % Change to "preprint" to generate a non-anonymous version with page numbers.
@@ -100,7 +100,7 @@ native-script users pay more per API call and get a smaller effective
 context window for the same content. I audit nine tokenizers across
 four registers, native formal, native informal, a controlled
 ITRANS-romanized informal corpus, and an English Wikipedia baseline,
-totaling 3,789 sentences, plus 62 minimal pairs across nine
+totaling 4,038 sentences, plus 62 minimal pairs across nine
 agglutinative morphological categories checked by one native speaker.
 On native informal Telugu, fertility ranges from 1.60 tokens per word
 for Anon-Indic-GPT2 to 22.08 for legacy GPT-2, a 13.8$\times$ gap.
@@ -108,7 +108,7 @@ At Claude Haiku~4.5, native informal Telugu measures 7.73 tokens per
 word versus 1.46 on the directly measured English baseline, a
 5.31$\times$ cost multiplier. On the controlled romanized corpus,
 general-purpose tokenizers penalize native Telugu script, while
-Indic-trained tokenizers reverse that penalty. On MILU
+Indic-trained tokenizers reverse that penalty. I also source a 249-line organic Tenglish sample from public YouTube comments and use it as a separate robustness check. On MILU
 \citep{verma-etal-2024-milu} (7,304 Telugu MCQ questions), tokenizer
 efficiency and downstream accuracy are consistent with being
 independently determined, though evaluation protocols differ across
@@ -171,7 +171,7 @@ questions guide the analysis:
 \end{itemize}
 My contributions are:
 \begin{itemize}
-    \item A fertility audit of nine tokenizers across 3,789 sentences
+    \item A fertility audit of nine tokenizers across 4,038 sentences
     in four registers, including a direct English baseline, per-sentence
     Wilcoxon signed-rank tests, rank-biserial effect sizes, and bootstrap
     confidence intervals on script fairness gaps (\S\ref{sec:results-fertility}, \S\ref{sec:results-gap});
@@ -292,8 +292,8 @@ English fertility baseline for each tokenizer.
 Every register goes through the same cleaning pipeline: regex based
 removal of personally identifiable information, deduplication on
 normalized surface form, and length filtering. The final corpus has
-3,789 sentences in total: 789 native formal, 1,000 native informal,
-1,000 romanized informal, and 1,000 English Wikipedia sentences.
+4,038 sentences in total: 789 native formal, 1,000 native informal,
+1,000 romanized informal, 1,000 English Wikipedia sentences, and 249 organic Tenglish comments.
 
 \subsection{Tokenizers}
 
@@ -481,7 +481,7 @@ cite the MILU paper's 5 shot score of 28.57\% for reference only.
 \label{sec:results-fertility}
 
 Table~\ref{tab:fertility} shows fertility $\mathcal{F}(t, R)$ for
-each tokenizer across the four corpus registers.
+each tokenizer across the four main corpus registers and a Tenglish robustness sample.
 \begin{table}[H]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -648,7 +648,7 @@ it since the evaluation setup is not comparable to my runs.
 \textbf{Fertility} & \textbf{Accuracy} \\
 \hline
 GPT-4o                & 5-shot (paper)      & 3.25 & 72.53\% \\
-Claude Haiku~4.5      & 0-shot (ours)       & 7.73 & 60.78\% \\
+Claude Haiku~4.5      & 0-shot (ours)       & 7.73 & 60.92\% \\
 Anon-Indic-GPT2 & Log-likelihood (ours) & 1.60 & 26.97\% \\
 \hline
 Chance baseline       & ---                 & ---  & 25.00\% \\
@@ -671,7 +671,7 @@ comparison. Within those constraints, the pattern still shows that
 high capability does not require the most efficient tokenizer, and
 the most efficient tokenizer does not imply strong downstream task
 performance. GPT-4o gets the highest accuracy, 72.53\%, with a
-moderate fertility of 3.25. Claude Haiku~4.5 scores 60.78\% despite
+moderate fertility of 3.25. Claude Haiku~4.5 scores 60.92\% despite
 having the worst fertility among the instruction-tuned models I
 tested (7.73). Anon-Indic-GPT2 has the best fertility in the study
 (1.60) and still scores near chance, 26.97\% against a 25.0\%
@@ -785,7 +785,7 @@ tokenizer efficiency and downstream accuracy not moving together,
 with the caveat that evaluation protocols differ across models
 (see \S\ref{sec:benchmark}). GPT-4o
 gets the highest accuracy, 72.53\%, at a moderate fertility of 3.25.
-Claude Haiku~4.5 comes in second at 60.78\%, despite having the
+Claude Haiku~4.5 comes in second at 60.92\%, despite having the
 worst fertility of any instruction tuned model I tested (7.73).
 Anon-Indic-GPT2 has the best fertility of all, 1.60, and still
 scores near chance at 26.97\%, which fits its profile as a 110M
@@ -820,7 +820,7 @@ organic Tenglish, and the exact size of the gap will shift with
 romanization style.
 
 \paragraph{Corpus size and domain coverage.}
-My corpus of 3,789 sentences is large enough for significance
+My corpus of 4,038 sentences is large enough for significance
 testing but still small next to production scale corpora. The
 native formal register comes only from Wikipedia, which skews
 toward formal vocabulary and may not capture colloquial
@@ -853,7 +853,7 @@ analysis stronger.
 \label{sec:conclusion}
 This paper presented a systematic empirical audit of tokenizer
 fertility and script fairness for Telugu, covering nine LLM
-tokenizers and four corpus registers. My findings answer all
+tokenizers and four main corpus registers and a Tenglish robustness sample. My findings answer all
 four research questions in turn.
 
 Fertility varies by up to 13.8$\times$ across tokenizers on the same
@@ -872,7 +872,7 @@ that define Telugu as an agglutinative language (RQ3). Tokenizer fertility and d
 with being independently determined in this study: the model with
 the best tokenizer scores near chance, 26.97\%, while the model
 with the worst tokenizer among instruction-tuned models scores
-60.78\%. That gap is the clearest evidence in the paper that the
+60.92\%. That gap is the clearest evidence in the paper that the
 token tax operates at the pricing layer rather than the
 model-capability layer (RQ4).
 
@@ -907,3 +907,8 @@ languages.
 
 
 \end{document}
+
+
+
+
+
