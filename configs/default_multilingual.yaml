@@ -11,9 +11,10 @@ english_register: english_wiki
 languages:
   - name: telugu
     code: te
-    prefix: te
+    prefix: ""
     primary: true
     include_tenglish: true
   - name: hindi
     code: hi
     prefix: hi
+    minimal_pairs_path: data/minimal_pairs/hindi_minimal_pairs.tsv

@@ -16,6 +16,7 @@ class LanguageProfile:
     native_informal_register: str
     romanized_informal_register: str
     tenglish_register: str | None = None
+    minimal_pairs_path: str | None = None
 
 
 VALID_MORPH_TYPES = frozenset(
@@ -31,6 +32,32 @@ VALID_MORPH_TYPES = frozenset(
         "verb_agglutination_chain",
     }
 )
+
+HINDI_VALID_MORPH_TYPES = frozenset(
+    {
+        "base_noun",
+        "oblique_case_form",
+        "plural_form_direct",
+        "plural_form_oblique",
+        "honorific_form",
+        "pronoun_oblique_form",
+        "verb_participle_form",
+        "verb_inflection_chain",
+        "borrowed_form",
+    }
+)
+
+MORPH_TYPES_BY_LANGUAGE: dict[str, frozenset[str]] = {
+    "telugu": VALID_MORPH_TYPES,
+    "hindi": HINDI_VALID_MORPH_TYPES,
+}
+
+
+def get_valid_morph_types(language: str | None) -> frozenset[str]:
+    """Return the valid morph_type vocabulary for a language, defaulting to Telugu's."""
+    if language is None:
+        return VALID_MORPH_TYPES
+    return MORPH_TYPES_BY_LANGUAGE.get(language, VALID_MORPH_TYPES)
 
 
 def _prefixed(prefix: str, register: str) -> str:
@@ -82,6 +109,7 @@ def get_language_profiles(config: dict | None = None) -> list[LanguageProfile]:
                     _prefixed(prefix, "romanized_informal"),
                 ),
                 tenglish_register=tenglish_register,
+                minimal_pairs_path=entry.get("minimal_pairs_path"),
             )
         )
 
@@ -96,6 +124,7 @@ def get_language_profiles(config: dict | None = None) -> list[LanguageProfile]:
             native_informal_register=first.native_informal_register,
             romanized_informal_register=first.romanized_informal_register,
             tenglish_register=first.tenglish_register,
+            minimal_pairs_path=first.minimal_pairs_path,
         )
     return profiles
 

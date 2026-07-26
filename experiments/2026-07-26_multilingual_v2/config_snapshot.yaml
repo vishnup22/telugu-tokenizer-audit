@@ -1,0 +1,19 @@
+corpus_dir: data/processed_multilingual
+minimal_pairs_path: data/minimal_pairs/minimal_pairs.tsv
+tokenizer_set: full
+pricing_path: configs/pricing.yaml
+run_tag: multilingual_v2
+primary_word_count_method: whitespace
+word_count_methods:
+- whitespace
+- indicnlp
+english_register: english_wiki
+languages:
+- name: telugu
+  code: te
+  prefix: ''
+  primary: true
+  include_tenglish: true
+- name: hindi
+  code: hi
+  prefix: hi

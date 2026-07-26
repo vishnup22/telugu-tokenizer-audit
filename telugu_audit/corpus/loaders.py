@@ -57,18 +57,22 @@ def load_all_registers(
     }
 
 
-def load_minimal_pairs(path: str | Path) -> pd.DataFrame:
+def load_minimal_pairs(
+    path: str | Path,
+    valid_morph_types: frozenset[str] | None = None,
+) -> pd.DataFrame:
     df = pd.read_csv(path, sep="\t", dtype=str, comment="#")
     required = {"word", "gloss", "morph_type"}
     missing = required - set(df.columns)
     if missing:
         raise ValueError(f"minimal_pairs missing columns: {sorted(missing)}")
 
-    invalid = set(df["morph_type"].dropna()) - VALID_MORPH_TYPES
+    allowed_types = valid_morph_types if valid_morph_types is not None else VALID_MORPH_TYPES
+    invalid = set(df["morph_type"].dropna()) - allowed_types
     if invalid:
         raise ValueError(
             f"Unknown morph_type values: {sorted(invalid)}. "
-            f"Valid types: {sorted(VALID_MORPH_TYPES)}"
+            f"Valid types: {sorted(allowed_types)}"
         )
 
     is_fixture = Path(path).name.startswith("FAKE_")

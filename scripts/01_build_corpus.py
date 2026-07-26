@@ -30,6 +30,7 @@ def main() -> None:
         output_dir,
         registers=get_required_registers(config),
         optional_registers=get_optional_registers(config),
+        config=config,
     )
     for register, n in counts.items():
         print(f"{register}: {n} lines -> {output_dir / f'{register}.txt'}")

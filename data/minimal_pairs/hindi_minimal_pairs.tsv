@@ -1,0 +1,110 @@
+# Hindi minimal pairs - reviewed and curated
+# Source: candidates auto-extracted from UD Hindi-HDTB (see hindi_minimal_pairs_candidates.tsv),
+# corrected and re-categorized following native-speaker review (2026-07-25).
+# Changes from the raw candidate set:
+#   - Removed proper nouns/place names (Asia, India, Korea, Shah Jahan, Qudsia, Gohar, Khilji, Charles, Monday)
+#   - Deduplicated words that appeared under two conflicting categories (begam, dvaar)
+#   - Moved English loanwords out of base_noun/oblique_case_form/plural_form into borrowed_form
+#   - Reassigned oblique_case_form entries that were actually direct/citation forms to base_noun
+#   - Split plural_form into plural_form_direct vs plural_form_oblique (-on marking)
+#   - Split out pronoun_oblique_form and verb_participle_form from the noisy honorific_form bucket
+#   - Dropped bare verb stems, a genitive postposition, and other pattern-matching false positives
+#     (utha, ja, kar, le, niji, ke, fauji) that did not belong in any category
+# Open design question (not yet resolved): several verb_inflection_chain entries are honorific
+# imperatives (lijiye, lagaiyega, bhooliyega, uthaiyega, jaiye) - flag for future cross-referencing
+# with honorific_form rather than duplicating rows across categories.
+word	gloss	morph_type
+# --- base_noun ---
+नवाब	nawab (noble title)	base_noun
+प्रवेश	entrance/entry	base_noun
+द्वार	door/gate	base_noun
+इमारत	building	base_noun
+प्रार्थना	prayer	base_noun
+इज्तिमा	religious congregation/gathering	base_noun
+शौकत	grandeur/pomp	base_noun
+नमूना	sample/specimen	base_noun
+बेगम	lady/madam (title)	base_noun
+हिंदू	Hindu	base_noun
+मुगल	Mughal	base_noun
+संगम	confluence	base_noun
+संस्था	institution/organization	base_noun
+प्रदर्शन	display/performance	base_noun
+दृश्य	scene/view	base_noun
+केंद्र	center	base_noun
+दिन	day	base_noun
+देश	country	base_noun
+महल	palace	base_noun
+झील	lake	base_noun
+वास्तुकला	architecture	base_noun
+काल	time/era	base_noun
+कला	art	base_noun
+रूप	form/appearance	base_noun
+क्षेत्र	region/area	base_noun
+भवन	building	base_noun
+# --- oblique_case_form ---
+# NOTE: only one genuine oblique form survived review. This category needs fresh,
+# purpose-built examples (case-inflected forms before postpositions, e.g. ghar -> ghar mein)
+# rather than more treebank extraction - the extraction heuristic could not reliably find these.
+किनारे	shore/bank (oblique form of किनारा)	oblique_case_form
+# --- plural_form_direct ---
+मेहराबें	arches	plural_form_direct
+नमूने	samples	plural_form_direct
+हवेलियाँ	havelis/mansions	plural_form_direct
+दुकानें	shops	plural_form_direct
+# --- plural_form_oblique ---
+मस्जिदों	mosques (oblique)	plural_form_oblique
+लोगों	people (oblique)	plural_form_oblique
+कविताओं	poems (oblique)	plural_form_oblique
+गुफाओं	caves (oblique)	plural_form_oblique
+वस्तुओं	things/objects (oblique)	plural_form_oblique
+परंपराओं	traditions (oblique)	plural_form_oblique
+आवासों	residences (oblique)	plural_form_oblique
+नमूनों	samples (oblique)	plural_form_oblique
+हिस्सों	parts (oblique)	plural_form_oblique
+जिलों	districts (oblique)	plural_form_oblique
+प्राणियों	creatures/beings (oblique)	plural_form_oblique
+गलियों	streets/lanes (oblique)	plural_form_oblique
+# --- honorific_form ---
+आप	you (honorific/formal)	honorific_form
+आपने	you (honorific, ergative)	honorific_form
+आपका	your (honorific, masc. sg. possessive)	honorific_form
+आपके	your (honorific, oblique/masc. pl. possessive)	honorific_form
+आपकी	your (honorific, fem. possessive)	honorific_form
+शिवजी	Shiva-ji (honorific -ji suffix on a name)	honorific_form
+# --- pronoun_oblique_form ---
+जिन्हें	whom (relative pronoun, oblique)	pronoun_oblique_form
+उनके	their/his/her (oblique possessive)	pronoun_oblique_form
+उनकी	their/his/her (fem. possessive)	pronoun_oblique_form
+# --- verb_participle_form ---
+सकते	able to (potential participle, from सकना)	verb_participle_form
+हुए	having been/become (past participle, from होना)	verb_participle_form
+चुके	already done (completive participle, from चुकना)	verb_participle_form
+# --- verb_inflection_chain ---
+है	is (present copula)	verb_inflection_chain
+था	was (past copula, masc.)	verb_inflection_chain
+हैं	are (present copula, plural/honorific)	verb_inflection_chain
+थे	were (past copula, masc. pl.)	verb_inflection_chain
+होंगे	will be (future, masc. pl.)	verb_inflection_chain
+होगा	will be (future, masc. sg.)	verb_inflection_chain
+लीजिए	please take (honorific imperative)	verb_inflection_chain
+लगाइएगा	please apply/plant (honorific future imperative)	verb_inflection_chain
+सके	could/was able to (subjunctive/past potential)	verb_inflection_chain
+जाएँ	may go (subjunctive)	verb_inflection_chain
+आएंगे	will come (future, masc. pl.)	verb_inflection_chain
+भूलिएगा	please don't forget (honorific future imperative)	verb_inflection_chain
+लगेगी	will take/apply (future, fem.)	verb_inflection_chain
+देखेंगे	will see (future, masc. pl.)	verb_inflection_chain
+लगेगा	will take/apply (future, masc.)	verb_inflection_chain
+जाएं	may go (subjunctive, alt. spelling)	verb_inflection_chain
+उठाइएगा	please lift/raise (honorific future imperative)	verb_inflection_chain
+जाएँगे	will go (future, masc. pl.)	verb_inflection_chain
+जाइए	please go (honorific imperative)	verb_inflection_chain
+जाए	may go (subjunctive)	verb_inflection_chain
+# --- borrowed_form ---
+डिजाइन	design	borrowed_form
+हॉल	hall	borrowed_form
+फाइन	fine (as in "good/fine")	borrowed_form
+आर्ट	art	borrowed_form
+ऑडिटोरियम	auditorium	borrowed_form
+गैलरी	gallery	borrowed_form
+हिल्स	hills	borrowed_form

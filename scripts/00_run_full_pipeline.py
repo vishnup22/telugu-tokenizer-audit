@@ -97,6 +97,7 @@ def main() -> None:
             Path(config["corpus_dir"]),
             registers=get_required_registers(config),
             optional_registers=get_optional_registers(config),
+            config=config,
         )
         for reg, n in counts.items():
             print(f"  {reg}: {n} lines")
